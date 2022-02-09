@@ -1,2 +1,6 @@
 tmp/
 .dbdata
+
+# Configs
+config/conf.*
+app.env
