@@ -62,7 +62,14 @@ func (u *userLogic) Update(id string, data map[string]interface{}) (*domain.User
 }
 
 func (u *userLogic) Delete(id string) error {
-	return u.userRepo.Delete(id)
+	if id == "" {
+		return errors.Wrap(utils.ErrInvalidParamater, "id can't be empty")
+	}
+
+	if err := u.userRepo.Delete(id); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *userLogic) GetByEmail(email string) (bool, *domain.User, error) {
