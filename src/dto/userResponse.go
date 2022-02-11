@@ -11,7 +11,7 @@ type UserRespBody struct {
 	Email     string `json:"email"`
 }
 
-func NeweUserRespBody(user *domain.User) *UserRespBody {
+func NewUserRespBody(user *domain.User) *UserRespBody {
 	return &UserRespBody{
 		Id:        user.Id,
 		FirstName: user.FirstName,

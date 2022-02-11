@@ -3,13 +3,13 @@ package logic
 import (
 	"fmt"
 	"users/src/domain"
+	"users/src/dto"
 	repo "users/src/repositories"
 	srv "users/src/services"
 	"users/src/utils"
 
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/pkg/errors"
-	"gopkg.in/dealancer/validate.v2"
 )
 
 type userLogic struct {
@@ -22,43 +22,60 @@ func NewUserLogic(userRepo repo.UserRepository) srv.UserService {
 	}
 }
 
-func (u *userLogic) GetAll() ([]domain.User, error) {
-	res := []domain.User{}
-	if res, err := u.userRepo.GetAll(); err != nil {
-		return res, err
-	}
-	return res, nil
-}
+func (u *userLogic) GetAll() ([]*dto.UserRespBody, error) {
+	var res []*dto.UserRespBody
 
-func (u *userLogic) GetById(id string) (*domain.User, error) {
-	res, err := u.userRepo.GetBy(map[string]interface{}{"ID": id})
+	users, err := u.userRepo.GetAll()
+
 	if err != nil {
-		return res, err
+		return nil, err
 	}
+
+	for _, u := range users {
+		user_res := dto.NewUserRespBody(u)
+		res = append(res, user_res)
+	}
+
 	return res, nil
 }
 
-func (u *userLogic) Store(data *domain.User) error {
-	if err := validate.Validate(data); err != nil {
-		return errors.Wrap(utils.ErrUserInvalid, "error trying to create user")
+func (u *userLogic) GetById(id string) (*dto.UserRespBody, error) {
+	user, err := u.userRepo.GetBy(map[string]interface{}{"ID": id})
+	if err != nil {
+		return nil, err
 	}
 
-	if data.Id == "" {
-		uid, _ := uuid.NewV4()
-		data.Id = uid.String()
-	}
+	res := dto.NewUserRespBody(user)
 
-	if exists, _, _ := u.GetByEmail(data.Email); exists {
-		return errors.Wrap(utils.ErrUserAlredyExists, fmt.Sprintf("email %s already exists", data.Email))
-	}
-
-	data.Password = repo.EncryptPassword(data.Password)
-
-	return u.userRepo.Store(data)
+	return res, nil
 }
 
-func (u *userLogic) Update(id string, data map[string]interface{}) (*domain.User, error) {
-	return u.userRepo.Update(id, data)
+func (u *userLogic) Store(user_req *dto.UserReqBody) (*dto.UserRespBody, error) {
+
+	if exists, _, _ := u.getByEmail(user_req.Email); exists {
+		return nil, errors.Wrap(utils.ErrUserAlredyExists, fmt.Sprintf("email %s already exists", user_req.Email))
+	}
+
+	user := user_req.ToUserDomain()
+
+	if user.Id == "" {
+		uid, _ := uuid.NewV4()
+		user.Id = uid.String()
+	}
+
+	user.Password = repo.EncryptPassword(user.Password)
+
+	user, err := u.userRepo.Store(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dto.NewUserRespBody(user), nil
+}
+
+func (u *userLogic) Update(user_req *dto.UserReqBody) (*domain.User, error) {
+	return u.userRepo.Update(user_req.ToUserDomain())
 }
 
 func (u *userLogic) Delete(id string) error {
@@ -72,7 +89,7 @@ func (u *userLogic) Delete(id string) error {
 	return nil
 }
 
-func (u *userLogic) GetByEmail(email string) (bool, *domain.User, error) {
+func (u *userLogic) getByEmail(email string) (bool, *domain.User, error) {
 	res, err := u.userRepo.GetBy(map[string]interface{}{"Email": email})
 
 	if err != nil {

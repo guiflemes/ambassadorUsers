@@ -8,3 +8,5 @@ type User struct {
 	Password     string `json:"-"`
 	IsAmbassador bool   `json:"is_ambassador"`
 }
+
+type UsersList []*User
