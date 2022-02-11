@@ -20,6 +20,7 @@ func NewUserLogic(userRepo repo.UserRepository) srv.UserService {
 	return &userLogic{
 		userRepo: userRepo,
 	}
+
 }
 
 func (u *userLogic) GetAll() ([]*dto.UserRespBody, error) {
@@ -74,8 +75,13 @@ func (u *userLogic) Store(user_req *dto.UserReqBody) (*dto.UserRespBody, error) 
 	return dto.NewUserRespBody(user), nil
 }
 
-func (u *userLogic) Update(user_req *dto.UserReqBody) (*domain.User, error) {
-	return u.userRepo.Update(user_req.ToUserDomain())
+func (u *userLogic) Update(user_req *dto.UserReqBody) (*dto.UserRespBody, error) {
+	user, err := u.userRepo.Update(user_req.ToUserDomain())
+	if err != nil {
+		return nil, err
+	}
+
+	return dto.NewUserRespBody(user), nil
 }
 
 func (u *userLogic) Delete(id string) error {
