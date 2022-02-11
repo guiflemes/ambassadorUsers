@@ -1,1 +1,21 @@
 package dto
+
+import (
+	"users/src/domain"
+)
+
+type UserRespBody struct {
+	Id        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+func NeweUserRespBody(user *domain.User) *UserRespBody {
+	return &UserRespBody{
+		Id:        user.Id,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+	}
+}
