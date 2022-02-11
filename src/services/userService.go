@@ -5,7 +5,7 @@ import (
 )
 
 type UserService interface {
-	GetAll() (*[]dto.UserRespBody, error)
+	GetAll() ([]*dto.UserRespBody, error)
 	GetById(id string) (*dto.UserRespBody, error)
 	Store(u *dto.UserReqBody) (*dto.UserRespBody, error)
 	Update(u *dto.UserReqBody) (*dto.UserRespBody, error)
