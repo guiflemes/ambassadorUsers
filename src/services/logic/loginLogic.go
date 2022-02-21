@@ -7,10 +7,10 @@ import (
 )
 
 type loginService struct {
-	loginRepo repo.UserRepository
+	loginRepo repo.LoginRepository
 }
 
-func NewLoginLogic(loginRepo repo.UserRepository) svc.LoginService {
+func NewLoginLogic(loginRepo repo.LoginRepository) svc.LoginService {
 	return &loginService{
 		loginRepo,
 	}

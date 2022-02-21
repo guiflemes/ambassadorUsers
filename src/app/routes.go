@@ -6,5 +6,4 @@ import (
 
 func setup(app *fiber.App) {
 	app.Group("api")
-
 }

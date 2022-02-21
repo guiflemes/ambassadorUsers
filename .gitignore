@@ -1,5 +1,6 @@
 tmp/
 .dbdata
+.vscode
 
 # Configs
 config/conf.*

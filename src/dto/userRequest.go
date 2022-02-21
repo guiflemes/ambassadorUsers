@@ -12,11 +12,6 @@ type UserReqBody struct {
 	IsAmbassador bool   `json:"is_ambassador"`
 }
 
-type UserReqLoginBody struct {
-	Email    string `json:"email"`
-	Password string `json:"-"`
-}
-
 func (userReq *UserReqBody) ToUserDomain() *domain.User {
 	return &domain.User{
 		FirstName:    userReq.FirstName,
