@@ -1,19 +1,20 @@
-package logic
+package service
 
 import (
 	"errors"
 	"testing"
+	"users/src/application/port/in"
 	"users/src/domain"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-type MockRepository struct {
+type MockLoginRepository struct {
 	mock.Mock
 }
 
-func (mock *MockRepository) Authenticate(email string, password string) (bool, *domain.User, error) {
+func (mock *MockLoginRepository) Authenticate(email string, password string) (bool, *domain.User, error) {
 	args := mock.Called()
 	result := args.Get(1)
 	return args.Bool(0), result.(*domain.User), args.Error(2)
@@ -21,7 +22,7 @@ func (mock *MockRepository) Authenticate(email string, password string) (bool, *
 
 func testLoginServiceAuthenticateOk(t *testing.T) {
 	assert := assert.New(t)
-	mockRepo := new(MockRepository)
+	mockRepo := new(MockLoginRepository)
 	user := domain.User{
 		Id:           "3242425",
 		FirstName:    "first_name",
@@ -30,6 +31,8 @@ func testLoginServiceAuthenticateOk(t *testing.T) {
 		Password:     "anypass",
 		IsAmbassador: true,
 	}
+
+	expectedResult := in.NewUserRespBody(&user)
 
 	mockRepo.On("Authenticate").Return(true, &user, nil)
 
@@ -40,13 +43,13 @@ func testLoginServiceAuthenticateOk(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 
 	assert.True(want)
-	assert.Same(want1, &user)
+	assert.Equal(expectedResult, want1)
 	assert.Nil(wantErr)
 }
 
 func testLoginServiceAuthenticateFailed(t *testing.T) {
 	assert := assert.New(t)
-	mockRepo := new(MockRepository)
+	mockRepo := new(MockLoginRepository)
 	user := domain.User{}
 
 	mockRepo.On("Authenticate").Return(false, &user, errors.New("failed to authenticate"))
@@ -58,11 +61,11 @@ func testLoginServiceAuthenticateFailed(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 
 	assert.False(want)
-	assert.Same(want1, &user)
+	assert.Nil(want1)
 	assert.Error(wantErr)
 }
 
-func TestLoginServiceAuthenticateTable(t *testing.T) {
+func TestLoginServiceAuthenticate(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T){
 		"Authenticate Ok":     testLoginServiceAuthenticateOk,
 		"Authenticate Failed": testLoginServiceAuthenticateFailed,

@@ -1,4 +1,4 @@
-package dto
+package in
 
 import (
 	"users/src/domain"

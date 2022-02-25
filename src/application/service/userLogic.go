@@ -1,11 +1,10 @@
-package logic
+package service
 
 import (
 	"fmt"
+	"users/src/application/port/in"
+	"users/src/application/port/out"
 	"users/src/domain"
-	"users/src/dto"
-	repo "users/src/repositories"
-	srv "users/src/services"
 	"users/src/utils"
 
 	uuid "github.com/nu7hatch/gouuid"
@@ -13,45 +12,47 @@ import (
 )
 
 type userLogic struct {
-	userRepo repo.UserRepository
+	userRepo out.UserRepository
 }
 
-func NewUserLogic(userRepo repo.UserRepository) srv.UserService {
+func NewUserLogic(userRepo out.UserRepository) in.UserService {
 	return &userLogic{
 		userRepo: userRepo,
 	}
 
 }
 
-func (u *userLogic) GetAll() ([]*dto.UserRespBody, error) {
-	var res []*dto.UserRespBody
+func (u *userLogic) GetAll() ([]*in.UserRespBody, error) {
+	var res []*in.UserRespBody
 
 	users, err := u.userRepo.GetAll()
+
+	fmt.Println(users, err)
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, u := range users {
-		user_res := dto.NewUserRespBody(u)
+		user_res := in.NewUserRespBody(u)
 		res = append(res, user_res)
 	}
 
 	return res, nil
 }
 
-func (u *userLogic) GetById(id string) (*dto.UserRespBody, error) {
+func (u *userLogic) GetById(id string) (*in.UserRespBody, error) {
 	user, err := u.userRepo.GetBy(map[string]interface{}{"ID": id})
 	if err != nil {
 		return nil, err
 	}
 
-	res := dto.NewUserRespBody(user)
+	res := in.NewUserRespBody(user)
 
 	return res, nil
 }
 
-func (u *userLogic) Store(user_req *dto.UserReqBody) (*dto.UserRespBody, error) {
+func (u *userLogic) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) {
 
 	if exists, _, _ := u.getByEmail(user_req.Email); exists {
 		return nil, errors.Wrap(utils.ErrUserAlredyExists, fmt.Sprintf("email %s already exists", user_req.Email))
@@ -62,9 +63,10 @@ func (u *userLogic) Store(user_req *dto.UserReqBody) (*dto.UserRespBody, error) 
 	if user.Id == "" {
 		uid, _ := uuid.NewV4()
 		user.Id = uid.String()
+
 	}
 
-	user.Password = repo.EncryptPassword(user.Password)
+	user.Password = EncryptPassword(user.Password)
 
 	user, err := u.userRepo.Store(user)
 
@@ -72,16 +74,16 @@ func (u *userLogic) Store(user_req *dto.UserReqBody) (*dto.UserRespBody, error) 
 		return nil, err
 	}
 
-	return dto.NewUserRespBody(user), nil
+	return in.NewUserRespBody(user), nil
 }
 
-func (u *userLogic) Update(user_req *dto.UserReqBody) (*dto.UserRespBody, error) {
+func (u *userLogic) Update(user_req *in.UserReqBody) (*in.UserRespBody, error) {
 	user, err := u.userRepo.Update(user_req.ToUserDomain())
 	if err != nil {
 		return nil, err
 	}
 
-	return dto.NewUserRespBody(user), nil
+	return in.NewUserRespBody(user), nil
 }
 
 func (u *userLogic) Delete(id string) error {

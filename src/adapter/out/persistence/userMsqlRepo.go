@@ -1,4 +1,4 @@
-package mysql
+package persistence
 
 import (
 	"users/src/domain"

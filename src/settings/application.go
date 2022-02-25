@@ -1,17 +1,15 @@
-package app
+package settings
 
 import (
-	"users/src/repositories/mysql"
+	"users/src/adapter/out/persistence"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"users/src/config"
 )
 
 func StartApp() {
 
-	_, _ = mysql.NewMySQLRepository(config.GETSTRING("MYSQL_URL"))
+	_, _ = persistence.NewMySQLRepository(GETSTRING("MYSQL_URL"))
 
 	app := fiber.New()
 

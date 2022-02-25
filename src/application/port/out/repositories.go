@@ -1,4 +1,4 @@
-package repositories
+package out
 
 import (
 	"users/src/domain"
