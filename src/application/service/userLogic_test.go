@@ -95,10 +95,55 @@ func testGetAllError(t *testing.T) {
 
 }
 
+func testGetByIdOk(t *testing.T) {
+	assert := assert.New(t)
+	mockRepo := new(MockUserRepository)
+
+	mockDomain := domain.User{
+		Id:           "id",
+		FirstName:    "first_name",
+		LastName:     "last_name",
+		Email:        "email",
+		Password:     "anypass",
+		IsAmbassador: true,
+	}
+
+	mockRepo.On("GetBy").Return(&mockDomain, nil)
+
+	userService := NewUserLogic(mockRepo)
+
+	want, wantErr := userService.GetById("id")
+
+	expectedResult := in.NewUserRespBody(&mockDomain)
+
+	assert.Equal(want, expectedResult)
+	assert.Nil(wantErr)
+
+}
+
+func testGetByIdError(t *testing.T) {
+	assert := assert.New(t)
+	mockRepo := new(MockUserRepository)
+
+	mockDomain := domain.User{}
+
+	mockRepo.On("GetBy").Return(&mockDomain, errors.New("Any Error"))
+
+	userService := NewUserLogic(mockRepo)
+
+	want, wantErr := userService.GetById("id")
+
+	assert.Nil(want)
+	assert.Error(wantErr)
+
+}
+
 func TestUserService(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T){
-		"GetAllOk":    testGetAllOk,
-		"GetAllError": testGetAllError,
+		"GetAllOk":     testGetAllOk,
+		"GetAllError":  testGetAllError,
+		"GetByIdOk":    testGetByIdOk,
+		"GetByIdError": testGetByIdError,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t)

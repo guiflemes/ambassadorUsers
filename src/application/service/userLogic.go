@@ -27,8 +27,6 @@ func (u *userLogic) GetAll() ([]*in.UserRespBody, error) {
 
 	users, err := u.userRepo.GetAll()
 
-	fmt.Println(users, err)
-
 	if err != nil {
 		return nil, err
 	}
