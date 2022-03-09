@@ -21,3 +21,24 @@ func (userReq *UserReqBody) ToUserDomain() *domain.User {
 		IsAmbassador: userReq.IsAmbassador,
 	}
 }
+
+type UserUpdateDTO struct {
+	Id        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+type UserUpdatePasswordDTO struct {
+	Email    string `json:"email"`
+	Password string `json:"-"`
+}
+
+func UserUpdateDtoToDomain(dto *UserUpdateDTO) *domain.User {
+	return &domain.User{
+		Id:        dto.Id,
+		FirstName: dto.FirstName,
+		LastName:  dto.LastName,
+		Email:     dto.Email,
+	}
+}

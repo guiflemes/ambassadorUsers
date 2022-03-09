@@ -75,8 +75,8 @@ func (u *userLogic) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) {
 	return in.NewUserRespBody(user), nil
 }
 
-func (u *userLogic) Update(user_req *in.UserReqBody) (*in.UserRespBody, error) {
-	user, err := u.userRepo.Update(user_req.ToUserDomain())
+func (u *userLogic) Update(userReq *in.UserUpdateDTO) (*in.UserRespBody, error) {
+	user, err := u.userRepo.Update(in.UserUpdateDtoToDomain(userReq))
 	if err != nil {
 		return nil, err
 	}

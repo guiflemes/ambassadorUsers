@@ -138,12 +138,69 @@ func testGetByIdError(t *testing.T) {
 
 }
 
+func testUpdateOk(t *testing.T) {
+	assert := assert.New(t)
+	mockRepo := new(MockUserRepository)
+
+	mockDomain := domain.User{
+		Id:           "id",
+		FirstName:    "first_name",
+		LastName:     "last_name",
+		Email:        "email",
+		Password:     "anypass",
+		IsAmbassador: true,
+	}
+
+	mockRepo.On("Update").Return(&mockDomain, nil)
+
+	userService := NewUserLogic(mockRepo)
+
+	reqBody := in.UserUpdateDTO{
+		Id:        "anyID",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "email",
+	}
+	want, wantErr := userService.Update(&reqBody)
+
+	expectedResult := in.NewUserRespBody(&mockDomain)
+
+	assert.Equal(want, expectedResult)
+	assert.Nil(wantErr)
+
+}
+
+func testUpdateError(t *testing.T) {
+	assert := assert.New(t)
+	mockRepo := new(MockUserRepository)
+
+	mockDomain := domain.User{}
+	mockRepo.On("Update").Return(&mockDomain, errors.New("any error"))
+
+	userService := NewUserLogic(mockRepo)
+
+	reqBody := in.UserUpdateDTO{
+		Id:        "anyID",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "email",
+	}
+
+	want, wantErr := userService.Update(&reqBody)
+
+	assert.Nil(want)
+	assert.Error(wantErr)
+
+}
+
 func TestUserService(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T){
 		"GetAllOk":     testGetAllOk,
 		"GetAllError":  testGetAllError,
 		"GetByIdOk":    testGetByIdOk,
 		"GetByIdError": testGetByIdError,
+		"UpdateOk":     testUpdateOk,
+		"UpdateError":  testUpdateError,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t)
