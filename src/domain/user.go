@@ -1,12 +1,12 @@
 package domain
 
 type User struct {
-	Id           string `json:"id"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	Email        string `json:"email"`
-	Password     string `json:"-"`
-	IsAmbassador bool   `json:"is_ambassador"`
+	Id           string `validate: "required"`
+	FirstName    string `validate: "required,min=2"`
+	LastName     string `validate: "required,min=3"`
+	Email        string `validate: "required,email"`
+	Password     string `validate: "required,min=6"`
+	IsAmbassador bool
 }
 
 type UsersList []*User

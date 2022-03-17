@@ -155,7 +155,7 @@ func testUpdateOk(t *testing.T) {
 
 	userService := NewUserLogic(mockRepo)
 
-	reqBody := in.UserUpdateDTO{
+	reqBody := in.UserUpdateReq{
 		Id:        "anyID",
 		FirstName: "first_name",
 		LastName:  "last_name",
@@ -179,7 +179,7 @@ func testUpdateError(t *testing.T) {
 
 	userService := NewUserLogic(mockRepo)
 
-	reqBody := in.UserUpdateDTO{
+	reqBody := in.UserUpdateReq{
 		Id:        "anyID",
 		FirstName: "first_name",
 		LastName:  "last_name",

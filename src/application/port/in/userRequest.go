@@ -22,7 +22,7 @@ func (userReq *UserReqBody) ToUserDomain() *domain.User {
 	}
 }
 
-type UserUpdateDTO struct {
+type UserUpdateReq struct {
 	Id        string `json:"id"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
@@ -34,7 +34,7 @@ type UserUpdatePasswordDTO struct {
 	Password string `json:"-"`
 }
 
-func UserUpdateDtoToDomain(dto *UserUpdateDTO) *domain.User {
+func UserUpdateReqToDomain(dto *UserUpdateReq) *domain.User {
 	return &domain.User{
 		Id:        dto.Id,
 		FirstName: dto.FirstName,
