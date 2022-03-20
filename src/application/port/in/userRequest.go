@@ -9,7 +9,7 @@ type UserReqBody struct {
 	LastName     string `json:"last_name"`
 	Email        string `json:"email"`
 	Password     string `json:"-"`
-	IsAmbassador bool   `json:"is_ambassador"`
+	IsActive bool   `json:"is_ambassador"`
 }
 
 func (userReq *UserReqBody) ToUserDomain() *domain.User {
@@ -18,7 +18,7 @@ func (userReq *UserReqBody) ToUserDomain() *domain.User {
 		LastName:     userReq.LastName,
 		Email:        userReq.Email,
 		Password:     userReq.Password,
-		IsAmbassador: userReq.IsAmbassador,
+		IsActive: userReq.IsActive,
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var validate *validator.Validate
+var validate = validator.New()
 
 type Validator struct {
 	Tags []errorTag
@@ -21,17 +21,16 @@ type ErrorStruct struct {
 	Message string
 }
 
-func (v *Validator) ValidateAny(any interface{}) []ErrorStruct {
-	validate = validator.New()
+func (e *ErrorStruct) Error() string {
+	return e.Message
+}
+
+func (v *Validator) ValidateStruct(any interface{}) error {
 	err := validate.Struct(any)
 
 	if err != nil {
-		ve := err.(validator.ValidationErrors)
-		out := make([]ErrorStruct, len(ve))
-		for _, fe := range ve {
-			out = append(out, ErrorStruct{fe.Field(), v.msgForTag(fe)})
-		}
-		return out
+		fe := err.(validator.ValidationErrors)[0]
+		return &ErrorStruct{fe.Field(), v.msgForTag(fe)}
 	}
 
 	return nil
@@ -46,3 +45,19 @@ func (v *Validator) msgForTag(fe validator.FieldError) string {
 	return fe.Error()
 
 }
+
+// func (v *Validator) ValidateAny(any interface{}) []ErrorStruct {
+// 	validate = validator.New()
+// 	err := validate.Struct(any)
+
+// 	if err != nil {
+// 		ve := err.(validator.ValidationErrors)
+// 		out := make([]ErrorStruct, len(ve))
+// 		for _, fe := range ve {
+// 			out = append(out, ErrorStruct{fe.Field(), v.msgForTag(fe)})
+// 		}
+// 		return out
+// 	}
+
+// 	return nil
+// }

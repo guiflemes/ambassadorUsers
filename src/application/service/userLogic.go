@@ -66,6 +66,8 @@ func (u *userLogic) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) {
 
 	user.Password = EncryptPassword(user.Password)
 
+	user.IsValid
+
 	user, err := u.userRepo.Store(user)
 
 	if err != nil {

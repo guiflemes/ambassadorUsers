@@ -52,7 +52,7 @@ func testGetAllOk(t *testing.T) {
 			LastName:     "last_name",
 			Email:        "email@email.com",
 			Password:     "password",
-			IsAmbassador: true,
+			IsActive: true,
 		},
 	}
 
@@ -105,7 +105,7 @@ func testGetByIdOk(t *testing.T) {
 		LastName:     "last_name",
 		Email:        "email",
 		Password:     "anypass",
-		IsAmbassador: true,
+		IsActive: true,
 	}
 
 	mockRepo.On("GetBy").Return(&mockDomain, nil)
@@ -148,7 +148,7 @@ func testUpdateOk(t *testing.T) {
 		LastName:     "last_name",
 		Email:        "email",
 		Password:     "anypass",
-		IsAmbassador: true,
+		IsActive: true,
 	}
 
 	mockRepo.On("Update").Return(&mockDomain, nil)

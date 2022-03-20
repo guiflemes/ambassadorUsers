@@ -29,7 +29,7 @@ func testLoginServiceAuthenticateOk(t *testing.T) {
 		LastName:     "last_name",
 		Email:        "any_emai@gmail.com",
 		Password:     "anypass",
-		IsAmbassador: true,
+		IsActive: true,
 	}
 
 	expectedResult := in.NewUserRespBody(&user)

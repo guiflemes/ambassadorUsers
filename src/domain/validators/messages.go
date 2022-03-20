@@ -21,5 +21,5 @@ func (e *emailMessageError) message(fe validator.FieldError) string {
 type minMessageError struct{}
 
 func (e *minMessageError) message(fe validator.FieldError) string {
-	return fmt.Sprintf("the length should be > %s", fe.Param())
+	return fmt.Sprintf("the length should be greater than %s", fe.Param())
 }

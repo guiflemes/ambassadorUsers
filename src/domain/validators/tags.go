@@ -7,7 +7,7 @@ import (
 var tags = []errorTag{
 	errorTag{"required", &requiredMessageError{}},
 	errorTag{"email", &emailMessageError{}},
-	errorTag{"min", &minMessageError{}},
+	errorTag{"gt", &minMessageError{}},
 }
 
 type errorTag struct {
