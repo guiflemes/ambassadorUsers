@@ -1,6 +1,6 @@
 package in
 
-type UserService interface {
+type UserUseCase interface {
 	GetAll() ([]*UserRespBody, error)
 	GetById(id string) (*UserRespBody, error)
 	Store(u *UserReqBody) (*UserRespBody, error)

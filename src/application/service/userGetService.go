@@ -3,14 +3,13 @@ package service
 import (
 	"users/src/application/port/in"
 	"users/src/application/port/out"
-	"users/src/domain"
 )
 
-type getUserService struct {
+type userGetService struct {
 	userRepo out.UserRepository
 }
 
-func (s *getUserService) GetAll() ([]*in.UserRespBody, error) {
+func (s *userGetService) GetAll() ([]*in.UserRespBody, error) {
 	var res []*in.UserRespBody
 
 	users, err := s.userRepo.GetAll()
@@ -27,7 +26,7 @@ func (s *getUserService) GetAll() ([]*in.UserRespBody, error) {
 	return res, nil
 }
 
-func (s *getUserService) GetById(id string) (*in.UserRespBody, error) {
+func (s *userGetService) GetById(id string) (*in.UserRespBody, error) {
 	user, err := s.userRepo.GetBy(map[string]interface{}{"ID": id})
 	if err != nil {
 		return nil, err
@@ -38,8 +37,10 @@ func (s *getUserService) GetById(id string) (*in.UserRespBody, error) {
 	return res, nil
 }
 
-func (s *getUserService) GetByEmail(email string) (bool, *domain.User, error) {
-	res, err := s.userRepo.GetBy(map[string]interface{}{"Email": email})
+func (s *userGetService) GetByEmail(email string) (bool, *in.UserRespBody, error) {
+	user, err := s.userRepo.GetBy(map[string]interface{}{"Email": email})
+
+	res := in.NewUserRespBody(user)
 
 	if err != nil {
 		return false, res, err
