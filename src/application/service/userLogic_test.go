@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 	"users/src/application/port/in"
 	"users/src/domain"
@@ -165,17 +166,17 @@ func testGetByIdOk(t *testing.T) {
 
 func testGetByIdError(t *testing.T) {
 	assert := assert.New(t)
-	mockRepo := &mockGetService{}
+	mockServ := &mockGetService{}
 
 	var expectedResult *in.UserRespBody
 
-	mockRepo.On("GetById").Return(expectedResult, errors.New("Any Error"))
+	mockServ.On("GetById").Return(expectedResult, errors.New("Any Error"))
 
 	userService := &userService{
 		storeService:  nil,
 		updateService: nil,
 		deleteService: nil,
-		getService:    mockRepo,
+		getService:    mockServ,
 	}
 
 	want, wantErr := userService.GetById("id")
@@ -185,60 +186,95 @@ func testGetByIdError(t *testing.T) {
 
 }
 
-// func testUpdateOk(t *testing.T) {
-// 	assert := assert.New(t)
-// 	mockRepo := new(MockUserRepository)
+func TestStore(t *testing.T) {
+	assert := assert.New(t)
+	mockGetSrv := &mockGetService{}
+	mockStoreSrv := &mockStoreService{}
 
-// 	mockDomain := domain.User{
-// 		Id:        "id",
-// 		FirstName: "first_name",
-// 		LastName:  "last_name",
-// 		Email:     "email",
-// 		Password:  "anypass",
-// 		IsActive:  true,
-// 	}
+	userService := &userService{
+		storeService:  mockStoreSrv,
+		updateService: nil,
+		deleteService: nil,
+		getService:    mockGetSrv,
+	}
 
-// 	mockRepo.On("Update").Return(&mockDomain, nil)
+	type calls struct {
+		methodWant      string
+		methodWantError string
+	}
 
-// 	userService := NewUserService(mockRepo)
+	type getEmailResults struct {
+		exists bool
+		resp   *in.UserRespBody
+		err    error
+	}
 
-// 	reqBody := in.UserUpdateReq{
-// 		Id:        "anyID",
-// 		FirstName: "first_name",
-// 		LastName:  "last_name",
-// 		Email:     "email",
-// 	}
-// 	want, wantErr := userService.Update(&reqBody)
+	type testCase struct {
+		description           string
+		expectedResult        *in.UserRespBody
+		expectedError         error
+		calls                 calls
+		getEmailResults       getEmailResults
+		reflectExpectedResult []reflect.Value
+	}
 
-// 	expectedResult := in.NewUserRespBody(&mockDomain)
+	expetedResultOk1 := &in.UserRespBody{
+		Id:        "378927492",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "email@email.com",
+	}
 
-// 	assert.Equal(want, expectedResult)
-// 	assert.Nil(wantErr)
+	for _, scenario := range []testCase{
+		{
+			description:           "store ok",
+			expectedResult:        expetedResultOk1,
+			expectedError:         nil,
+			calls:                 calls{"Equal", "Nil"},
+			getEmailResults:       getEmailResults{false, &in.UserRespBody{}, nil},
+			reflectExpectedResult: []reflect.Value{reflect.ValueOf(&expetedResultOk1).Elem()},
+		},
 
-// }
+		{
+			description:           "store error",
+			expectedResult:        &in.UserRespBody{},
+			expectedError:         errors.New("any Error"),
+			calls:                 calls{"Nil", "Error"},
+			getEmailResults:       getEmailResults{true, &in.UserRespBody{}, errors.New("any Error")},
+			reflectExpectedResult: []reflect.Value{},
+		},
+	} {
+		t.Run(scenario.description, func(*testing.T) {
 
-// func testUpdateError(t *testing.T) {
-// 	assert := assert.New(t)
-// 	mockRepo := new(MockUserRepository)
+			mockGetSrv.On("GetByEmail").Return(
+				scenario.getEmailResults.exists,
+				scenario.getEmailResults.resp,
+				scenario.getEmailResults.err,
+			)
 
-// 	mockDomain := domain.User{}
-// 	mockRepo.On("Update").Return(&mockDomain, errors.New("any error"))
+			mockStoreSrv.On("Store").Return(
+				scenario.expectedResult,
+				scenario.expectedError,
+			)
 
-// 	userService := NewUserService(mockRepo)
+			req := &in.UserReqBody{
+				FirstName: "first_name",
+				LastName:  "last_name",
+				Email:     "email@email.com",
+				Password:  "pass123",
+			}
 
-// 	reqBody := in.UserUpdateReq{
-// 		Id:        "anyID",
-// 		FirstName: "first_name",
-// 		LastName:  "last_name",
-// 		Email:     "email",
-// 	}
+			want, wantError := userService.Store(req)
 
-// 	want, wantErr := userService.Update(&reqBody)
+			scenario.reflectExpectedResult = append(scenario.reflectExpectedResult, reflect.ValueOf(&want).Elem())
+			reflect.ValueOf(assert).MethodByName(scenario.calls.methodWant).Call(scenario.reflectExpectedResult)
 
-// 	assert.Nil(want)
-// 	assert.Error(wantErr)
+			reflect.ValueOf(assert).MethodByName(scenario.calls.methodWantError).Call(
+				[]reflect.Value{reflect.ValueOf(&wantError).Elem()})
 
-// }
+		})
+	}
+}
 
 func TestUserService(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T){
@@ -246,8 +282,6 @@ func TestUserService(t *testing.T) {
 		"GetAllError":  testGetAllError,
 		"GetByIdOk":    testGetByIdOk,
 		"GetByIdError": testGetByIdError,
-		// "UpdateOk":     testUpdateOk,
-		// "UpdateError":  testUpdateError,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t)

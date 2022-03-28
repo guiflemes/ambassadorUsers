@@ -9,7 +9,7 @@ type UserReqBody struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Password  string `json:"-"`
-	IsActive  bool   `json:"is_ambassador"`
+	IsActive  bool   `json:"is_active"`
 }
 
 func ToUserDomain(userReq *UserReqBody) *domain.User {
