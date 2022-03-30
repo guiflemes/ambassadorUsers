@@ -1,12 +1,8 @@
 package service
 
 import (
-	"fmt"
 	"users/src/application/port/in"
 	"users/src/application/port/out"
-	"users/src/utils"
-
-	"github.com/pkg/errors"
 )
 
 type userService struct {
@@ -27,15 +23,49 @@ func NewUserService(userRepo out.UserRepository) in.UserUseCase {
 }
 
 func (u *userService) GetAll() ([]*in.UserRespBody, error) {
-	return u.getService.GetAll()
+	var res []*in.UserRespBody
+
+	users, err := u.getService.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, u := range users {
+		user_res := in.NewUserRespBody(u)
+		res = append(res, user_res)
+	}
+
+	return res, nil
 }
 
 func (u *userService) GetById(id string) (*in.UserRespBody, error) {
-	return u.getService.GetById(id)
+	userDomain, err := u.getService.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+	return in.NewUserRespBody(userDomain), nil
 }
 
 func (u *userService) Update(userReq *in.UserUpdateReq) (*in.UserRespBody, error) {
-	return u.updateService.Update(in.UserUpdateReqToDomain(userReq))
+	userDomain, err := u.getService.GetById(userReq.Id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userDomain.FirstName = userReq.FirstName
+	userDomain.LastName = userReq.LastName
+	userDomain.Email = userReq.Email
+
+	userDomain, err := u.updateService.Update(userDomain)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return in.NewUserRespBody(userDomain), nil
 }
 
 func (u *userService) Delete(id string) error {
@@ -44,11 +74,16 @@ func (u *userService) Delete(id string) error {
 
 func (u *userService) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) {
 
-	if exists, _, _ := u.getService.GetByEmail(user_req.Email); exists {
-		return nil, errors.Wrap(utils.ErrUserAlredyExists, fmt.Sprintf("the given %s already exists", user_req.Email))
+	if exists, _, err := u.getService.GetByEmail(user_req.Email); exists {
+		return nil, err
 	}
 
-	userDomain := in.ToUserDomain(user_req)
+	userDomain, err := u.storeService.Store(in.ToUserDomain(user_req)
 
-	return u.storeService.Store(userDomain)
+	if err != nil{
+		return nil, err
+	}
+
+
+	return in.NewUserRespBody(userDomain), nil
 }

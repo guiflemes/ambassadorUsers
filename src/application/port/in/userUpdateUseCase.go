@@ -5,5 +5,5 @@ import (
 )
 
 type UserUpdateUseCase interface {
-	Update(*domain.User) (*UserRespBody, error)
+	Update(*domain.User) (*domain.User, error)
 }

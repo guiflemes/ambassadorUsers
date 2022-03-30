@@ -5,5 +5,5 @@ import (
 )
 
 type UserStoreUseCase interface {
-	Store(*domain.User) (*UserRespBody, error)
+	Store(*domain.User) (*domain.User, error)
 }

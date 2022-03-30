@@ -22,7 +22,7 @@ func (s *userStoreService) encryptPassword(userDomain *domain.User) {
 	userDomain.Password = EncryptPassword(userDomain.Password)
 }
 
-func (s *userStoreService) Store(userDomain *domain.User) (*in.UserRespBody, error) {
+func (s *userStoreService) Store(userDomain *domain.User) (*domain.User), error) {
 
 	s.setId(userDomain)
 	s.encryptPassword(userDomain)
@@ -37,6 +37,5 @@ func (s *userStoreService) Store(userDomain *domain.User) (*in.UserRespBody, err
 		return nil, errors.Wrap(err, "it was not possible to save User on Database")
 	}
 
-	return in.NewUserRespBody(user), nil
-
+	return user, nil
 }

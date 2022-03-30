@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 	"users/src/application/port/in"
 	"users/src/domain"
@@ -186,22 +185,8 @@ func testGetByIdError(t *testing.T) {
 
 }
 
-func TestStore(t *testing.T) {
+func testStore(t *testing.T) {
 	assert := assert.New(t)
-	mockGetSrv := &mockGetService{}
-	mockStoreSrv := &mockStoreService{}
-
-	userService := &userService{
-		storeService:  mockStoreSrv,
-		updateService: nil,
-		deleteService: nil,
-		getService:    mockGetSrv,
-	}
-
-	type calls struct {
-		methodWant      string
-		methodWantError string
-	}
 
 	type getEmailResults struct {
 		exists bool
@@ -210,41 +195,37 @@ func TestStore(t *testing.T) {
 	}
 
 	type testCase struct {
-		description           string
-		expectedResult        *in.UserRespBody
-		expectedError         error
-		calls                 calls
-		getEmailResults       getEmailResults
-		reflectExpectedResult []reflect.Value
-	}
-
-	expetedResultOk1 := &in.UserRespBody{
-		Id:        "378927492",
-		FirstName: "first_name",
-		LastName:  "last_name",
-		Email:     "email@email.com",
+		description     string
+		expectedResult  *in.UserRespBody
+		expectedError   error
+		getEmailResults getEmailResults
 	}
 
 	for _, scenario := range []testCase{
 		{
-			description:           "store ok",
-			expectedResult:        expetedResultOk1,
-			expectedError:         nil,
-			calls:                 calls{"Equal", "Nil"},
-			getEmailResults:       getEmailResults{false, &in.UserRespBody{}, nil},
-			reflectExpectedResult: []reflect.Value{reflect.ValueOf(&expetedResultOk1).Elem()},
+			description: "store ok",
+			expectedResult: &in.UserRespBody{
+				Id:        "378927492",
+				FirstName: "first_name",
+				LastName:  "last_name",
+				Email:     "email@email.com",
+			},
+
+			expectedError:   nil,
+			getEmailResults: getEmailResults{false, &in.UserRespBody{}, nil},
 		},
 
 		{
-			description:           "store error",
-			expectedResult:        &in.UserRespBody{},
-			expectedError:         errors.New("any Error"),
-			calls:                 calls{"Nil", "Error"},
-			getEmailResults:       getEmailResults{true, &in.UserRespBody{}, errors.New("any Error")},
-			reflectExpectedResult: []reflect.Value{},
+			description:     "store error",
+			expectedResult:  nil,
+			expectedError:   errors.New("any Error"),
+			getEmailResults: getEmailResults{true, &in.UserRespBody{}, errors.New("any Error")},
 		},
 	} {
 		t.Run(scenario.description, func(*testing.T) {
+
+			mockGetSrv := &mockGetService{}
+			mockStoreSrv := &mockStoreService{}
 
 			mockGetSrv.On("GetByEmail").Return(
 				scenario.getEmailResults.exists,
@@ -257,6 +238,13 @@ func TestStore(t *testing.T) {
 				scenario.expectedError,
 			)
 
+			userService := &userService{
+				storeService:  mockStoreSrv,
+				updateService: nil,
+				deleteService: nil,
+				getService:    mockGetSrv,
+			}
+
 			req := &in.UserReqBody{
 				FirstName: "first_name",
 				LastName:  "last_name",
@@ -266,11 +254,14 @@ func TestStore(t *testing.T) {
 
 			want, wantError := userService.Store(req)
 
-			scenario.reflectExpectedResult = append(scenario.reflectExpectedResult, reflect.ValueOf(&want).Elem())
-			reflect.ValueOf(assert).MethodByName(scenario.calls.methodWant).Call(scenario.reflectExpectedResult)
+			if !scenario.getEmailResults.exists {
+				assert.Equal(want, scenario.expectedResult)
+				assert.Nil(wantError)
+				return
+			}
 
-			reflect.ValueOf(assert).MethodByName(scenario.calls.methodWantError).Call(
-				[]reflect.Value{reflect.ValueOf(&wantError).Elem()})
+			assert.Nil(want)
+			assert.Error(wantError)
 
 		})
 	}
@@ -282,6 +273,7 @@ func TestUserService(t *testing.T) {
 		"GetAllError":  testGetAllError,
 		"GetByIdOk":    testGetByIdOk,
 		"GetByIdError": testGetByIdError,
+		"Store":        testStore,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t)
