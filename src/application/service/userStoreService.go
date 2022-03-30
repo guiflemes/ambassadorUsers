@@ -1,7 +1,6 @@
 package service
 
 import (
-	"users/src/application/port/in"
 	"users/src/application/port/out"
 	"users/src/domain"
 
@@ -22,7 +21,7 @@ func (s *userStoreService) encryptPassword(userDomain *domain.User) {
 	userDomain.Password = EncryptPassword(userDomain.Password)
 }
 
-func (s *userStoreService) Store(userDomain *domain.User) (*domain.User), error) {
+func (s *userStoreService) Store(userDomain *domain.User) (*domain.User, error) {
 
 	s.setId(userDomain)
 	s.encryptPassword(userDomain)

@@ -59,7 +59,7 @@ func (u *userService) Update(userReq *in.UserUpdateReq) (*in.UserRespBody, error
 	userDomain.LastName = userReq.LastName
 	userDomain.Email = userReq.Email
 
-	userDomain, err := u.updateService.Update(userDomain)
+	userDomain, err = u.updateService.Update(userDomain)
 
 	if err != nil {
 		return nil, err
@@ -78,12 +78,11 @@ func (u *userService) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) 
 		return nil, err
 	}
 
-	userDomain, err := u.storeService.Store(in.ToUserDomain(user_req)
+	userDomain, err := u.storeService.Store(in.ToUserDomain(user_req))
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
-
 
 	return in.NewUserRespBody(userDomain), nil
 }
