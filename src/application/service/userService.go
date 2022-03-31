@@ -78,7 +78,9 @@ func (u *userService) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) 
 		return nil, err
 	}
 
-	userDomain, err := u.storeService.Store(in.ToUserDomain(user_req))
+	d := in.ToUserDomain(user_req)
+
+	userDomain, err := u.storeService.Store(d)
 
 	if err != nil {
 		return nil, err

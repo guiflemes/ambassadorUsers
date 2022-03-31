@@ -5,7 +5,7 @@ import (
 )
 
 type GetUserQuery interface {
-	GetAll() ([]*domain.User, error)
+	GetAll() (domain.UsersList, error)
 	GetById(id string) (*domain.User, error)
 	GetByEmail(email string) (bool, *domain.User, error)
 }

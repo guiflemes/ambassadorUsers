@@ -13,7 +13,7 @@ type userGetService struct {
 	userRepo out.UserRepository
 }
 
-func (s *userGetService) GetAll() ([]*domain.User, error) {
+func (s *userGetService) GetAll() (domain.UsersList, error) {
 	users, err := s.userRepo.GetAll()
 
 	if err != nil {

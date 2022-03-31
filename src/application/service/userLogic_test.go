@@ -42,18 +42,18 @@ func (mock *MockUserRepository) Delete(id string) error {
 
 type mockStoreService struct{ mock.Mock }
 
-func (mock *mockStoreService) Store(*domain.User) (*in.UserRespBody, error) {
+func (mock *mockStoreService) Store(*domain.User) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
-	return result.(*in.UserRespBody), args.Error(1)
+	return result.(*domain.User), args.Error(1)
 }
 
 type mockUpdateService struct{ mock.Mock }
 
-func (mock *mockUpdateService) Update(data *domain.User) (*in.UserRespBody, error) {
+func (mock *mockUpdateService) Update(data *domain.User) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
-	return result.(*in.UserRespBody), args.Error(1)
+	return result.(*domain.User), args.Error(1)
 }
 
 type mockDeleteService struct{ mock.Mock }
@@ -65,25 +65,49 @@ func (mock *mockDeleteService) Delete(id string) error {
 
 type mockGetService struct{ mock.Mock }
 
-func (mock *mockGetService) GetAll() ([]*in.UserRespBody, error) {
+func (mock *mockGetService) GetAll() (domain.UsersList, error) {
 	args := mock.Called()
 	result := args.Get(0)
-	return result.([]*in.UserRespBody), args.Error(1)
+	return result.(domain.UsersList), args.Error(1)
 }
-func (mock *mockGetService) GetById(id string) (*in.UserRespBody, error) {
+func (mock *mockGetService) GetById(id string) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
-	return result.(*in.UserRespBody), args.Error(1)
+	return result.(*domain.User), args.Error(1)
 }
-func (mock *mockGetService) GetByEmail(email string) (bool, *in.UserRespBody, error) {
+func (mock *mockGetService) GetByEmail(email string) (bool, *domain.User, error) {
 	args := mock.Called()
 	result := args.Get(1)
-	return args.Bool(0), result.(*in.UserRespBody), args.Error(2)
+	return args.Bool(0), result.(*domain.User), args.Error(2)
 }
 
 func testGetAllOk(t *testing.T) {
 	assert := assert.New(t)
-	mockRepo := &mockGetService{}
+	mockServ := &mockGetService{}
+
+	mockOn := domain.UsersList{
+		&domain.User{
+			Id:        "378927492",
+			FirstName: "first_name",
+			LastName:  "last_name",
+			Email:     "email@email.com",
+			Password:  "jdisjdijs",
+			IsActive:  true,
+		},
+	}
+
+	mockServ.On("GetAll").Return(mockOn, nil)
+
+	userService := &userService{
+		storeService:  nil,
+		updateService: nil,
+		deleteService: nil,
+		getService:    mockServ,
+	}
+
+	want, wantErr := userService.GetAll()
+
+	mockServ.AssertExpectations(t)
 
 	expectedResult := []*in.UserRespBody{
 		{
@@ -94,19 +118,6 @@ func testGetAllOk(t *testing.T) {
 		},
 	}
 
-	mockRepo.On("GetAll").Return(expectedResult, nil)
-
-	userService := &userService{
-		storeService:  nil,
-		updateService: nil,
-		deleteService: nil,
-		getService:    mockRepo,
-	}
-
-	want, wantErr := userService.GetAll()
-
-	mockRepo.AssertExpectations(t)
-
 	assert.Equal(want, expectedResult)
 	assert.Nil(wantErr)
 
@@ -114,22 +125,22 @@ func testGetAllOk(t *testing.T) {
 
 func testGetAllError(t *testing.T) {
 	assert := assert.New(t)
-	mockRepo := &mockGetService{}
+	mockServ := &mockGetService{}
 
-	var expectedResult []*in.UserRespBody
+	var mockOn domain.UsersList
 
-	mockRepo.On("GetAll").Return(expectedResult, errors.New("error"))
+	mockServ.On("GetAll").Return(mockOn, errors.New("error"))
 
 	userService := &userService{
 		storeService:  nil,
 		updateService: nil,
 		deleteService: nil,
-		getService:    mockRepo,
+		getService:    mockServ,
 	}
 
 	want, wantErr := userService.GetAll()
 
-	mockRepo.AssertExpectations(t)
+	mockServ.AssertExpectations(t)
 
 	assert.Nil(want)
 	assert.Error(wantErr)
@@ -140,14 +151,16 @@ func testGetByIdOk(t *testing.T) {
 	assert := assert.New(t)
 	mockRepo := &mockGetService{}
 
-	expectedResult := &in.UserRespBody{
+	mockOn := &domain.User{
 		Id:        "378927492",
 		FirstName: "first_name",
 		LastName:  "last_name",
 		Email:     "email@email.com",
+		Password:  "jdisjdijs",
+		IsActive:  true,
 	}
 
-	mockRepo.On("GetById").Return(expectedResult, nil)
+	mockRepo.On("GetById").Return(mockOn, nil)
 
 	userService := &userService{
 		storeService:  nil,
@@ -158,6 +171,13 @@ func testGetByIdOk(t *testing.T) {
 
 	want, wantErr := userService.GetById("id")
 
+	expectedResult := &in.UserRespBody{
+		Id:        "378927492",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "email@email.com",
+	}
+
 	assert.Equal(want, expectedResult)
 	assert.Nil(wantErr)
 
@@ -167,9 +187,9 @@ func testGetByIdError(t *testing.T) {
 	assert := assert.New(t)
 	mockServ := &mockGetService{}
 
-	var expectedResult *in.UserRespBody
+	var mockOn *domain.User
 
-	mockServ.On("GetById").Return(expectedResult, errors.New("Any Error"))
+	mockServ.On("GetById").Return(mockOn, errors.New("Any Error"))
 
 	userService := &userService{
 		storeService:  nil,
@@ -190,7 +210,7 @@ func testStore(t *testing.T) {
 
 	type getEmailResults struct {
 		exists bool
-		resp   *in.UserRespBody
+		resp   *domain.User
 		err    error
 	}
 
@@ -198,7 +218,17 @@ func testStore(t *testing.T) {
 		description     string
 		expectedResult  *in.UserRespBody
 		expectedError   error
+		mockOn          *domain.User
 		getEmailResults getEmailResults
+	}
+
+	mockStoreOk := &domain.User{
+		Id:        "378927492",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "email@email.com",
+		Password:  "jdisjdijs",
+		IsActive:  true,
 	}
 
 	for _, scenario := range []testCase{
@@ -210,16 +240,17 @@ func testStore(t *testing.T) {
 				LastName:  "last_name",
 				Email:     "email@email.com",
 			},
-
+			mockOn:          mockStoreOk,
 			expectedError:   nil,
-			getEmailResults: getEmailResults{false, &in.UserRespBody{}, nil},
+			getEmailResults: getEmailResults{false, mockStoreOk, nil},
 		},
 
 		{
 			description:     "store error",
 			expectedResult:  nil,
+			mockOn:          nil,
 			expectedError:   errors.New("any Error"),
-			getEmailResults: getEmailResults{true, &in.UserRespBody{}, errors.New("any Error")},
+			getEmailResults: getEmailResults{true, &domain.User{}, errors.New("any Error")},
 		},
 	} {
 		t.Run(scenario.description, func(*testing.T) {
@@ -234,7 +265,7 @@ func testStore(t *testing.T) {
 			)
 
 			mockStoreSrv.On("Store").Return(
-				scenario.expectedResult,
+				scenario.mockOn,
 				scenario.expectedError,
 			)
 
