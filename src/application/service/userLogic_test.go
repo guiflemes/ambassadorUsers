@@ -10,36 +10,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockUserRepository struct {
-	mock.Mock
-}
-
-func (mock *MockUserRepository) GetAll() (domain.UsersList, error) {
-	args := mock.Called()
-	result := args.Get(0)
-	return result.(domain.UsersList), args.Error(1)
-}
-
-func (mock *MockUserRepository) GetBy(filter map[string]interface{}) (*domain.User, error) {
-	args := mock.Called()
-	result := args.Get(0)
-	return result.(*domain.User), args.Error(1)
-}
-func (mock *MockUserRepository) Store(data *domain.User) (*domain.User, error) {
-	args := mock.Called()
-	result := args.Get(0)
-	return result.(*domain.User), args.Error(1)
-}
-func (mock *MockUserRepository) Update(data *domain.User) (*domain.User, error) {
-	args := mock.Called()
-	result := args.Get(0)
-	return result.(*domain.User), args.Error(1)
-}
-func (mock *MockUserRepository) Delete(id string) error {
-	args := mock.Called()
-	return args.Error(0)
-}
-
 type mockStoreService struct{ mock.Mock }
 
 func (mock *mockStoreService) Store(*domain.User) (*domain.User, error) {
@@ -298,6 +268,92 @@ func testStore(t *testing.T) {
 	}
 }
 
+func testUpdate(t *testing.T) {
+	assert := assert.New(t)
+
+	type testCase struct {
+		description    string
+		getByIdWant    *domain.User
+		getByIdError   error
+		updateWant     *domain.User
+		updateError    error
+		expectedResult *in.UserRespBody
+	}
+
+	for _, scenario := range []testCase{
+		{
+			description: "update ok",
+			getByIdWant: &domain.User{
+				Id:        "378927492",
+				FirstName: "old_first_name",
+				LastName:  "old_last_name",
+				Email:     "old_email@email.com",
+				Password:  "jdisjdijs",
+				IsActive:  true,
+			},
+			getByIdError: nil,
+			updateWant: &domain.User{
+				Id:        "378927492",
+				FirstName: "new_first_name",
+				LastName:  "new_last_name",
+				Email:     "new_email@email.com",
+				Password:  "jdisjdijs",
+				IsActive:  true,
+			},
+			updateError: nil,
+			expectedResult: &in.UserRespBody{
+				Id:        "378927492",
+				FirstName: "new_first_name",
+				LastName:  "new_last_name",
+				Email:     "new_email@email.com",
+			},
+		},
+		{
+			description:    "update error",
+			getByIdWant:    nil,
+			getByIdError:   errors.New("any error"),
+			updateWant:     nil,
+			updateError:    errors.New("any error"),
+			expectedResult: nil,
+		},
+	} {
+		t.Run(scenario.description, func(t *testing.T) {
+			mockGetSrv := &mockGetService{}
+			mockUpdateSrv := &mockUpdateService{}
+
+			mockGetSrv.On("GetById").Return(scenario.getByIdWant, scenario.getByIdError)
+			mockUpdateSrv.On("Update").Return(scenario.updateWant, scenario.updateError)
+
+			userSrv := &userService{
+				storeService:  nil,
+				updateService: mockUpdateSrv,
+				deleteService: nil,
+				getService:    mockGetSrv,
+			}
+
+			req := &in.UserUpdateReq{
+				Id:        "378927492",
+				FirstName: "new_first_name",
+				LastName:  "new_last_name",
+				Email:     "email@email.com",
+			}
+
+			want, wantErr := userSrv.Update(req)
+
+			if wantErr != nil {
+				assert.Nil(want)
+				assert.Error(wantErr)
+				return
+			}
+
+			assert.Equal(want, scenario.expectedResult)
+			assert.Nil(wantErr)
+
+		})
+	}
+
+}
+
 func TestUserService(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T){
 		"GetAllOk":     testGetAllOk,
@@ -305,6 +361,7 @@ func TestUserService(t *testing.T) {
 		"GetByIdOk":    testGetByIdOk,
 		"GetByIdError": testGetByIdError,
 		"Store":        testStore,
+		"Update":       testUpdate,
 	} {
 		t.Run(scenario, func(t *testing.T) {
 			fn(t)
