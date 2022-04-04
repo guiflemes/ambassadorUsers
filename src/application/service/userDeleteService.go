@@ -17,7 +17,7 @@ func (s *userDeleteService) Delete(ctx context.Context, id string) error {
 		return errors.Wrap(utils.ErrInvalidParamater, "id can't be empty")
 	}
 
-	if err := s.userRepo.Delete(id); err != nil {
+	if err := s.userRepo.Delete(ctx, id); err != nil {
 		return errors.Wrap(err, "it was not possibel to delete user")
 	}
 

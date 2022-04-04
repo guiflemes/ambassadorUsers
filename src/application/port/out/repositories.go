@@ -1,15 +1,16 @@
 package out
 
 import (
+	"context"
 	"users/src/domain"
 )
 
 type UserRepository interface {
-	GetAll() (domain.UsersList, error)
-	GetBy(filter map[string]interface{}) (*domain.User, error)
-	Store(data *domain.User) (*domain.User, error)
-	Update(data *domain.User) (*domain.User, error)
-	Delete(id string) error
+	GetAll(context.Context) (domain.UsersList, error)
+	GetBy(ctx context.Context, filter map[string]interface{}) (*domain.User, error)
+	Store(context.Context, *domain.User) (*domain.User, error)
+	Update(context.Context, *domain.User) (*domain.User, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type LoginRepository interface {

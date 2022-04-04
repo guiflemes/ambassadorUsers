@@ -16,7 +16,7 @@ type userGetService struct {
 }
 
 func (s *userGetService) GetAll(ctx context.Context) (domain.UsersList, error) {
-	users, err := s.userRepo.GetAll()
+	users, err := s.userRepo.GetAll(ctx)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving all users")
@@ -26,7 +26,7 @@ func (s *userGetService) GetAll(ctx context.Context) (domain.UsersList, error) {
 }
 
 func (s *userGetService) GetById(ctx context.Context, id string) (*domain.User, error) {
-	user, err := s.userRepo.GetBy(map[string]interface{}{"ID": id})
+	user, err := s.userRepo.GetBy(ctx, map[string]interface{}{"ID": id})
 	if err != nil {
 		return nil, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given %s doest not exists", id))
 	}
@@ -34,7 +34,7 @@ func (s *userGetService) GetById(ctx context.Context, id string) (*domain.User, 
 }
 
 func (s *userGetService) GetByEmail(ctx context.Context, email string) (bool, *domain.User, error) {
-	user, err := s.userRepo.GetBy(map[string]interface{}{"Email": email})
+	user, err := s.userRepo.GetBy(ctx, map[string]interface{}{"Email": email})
 
 	if err != nil {
 		return false, user, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given %s doest not exists", email))

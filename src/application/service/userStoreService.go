@@ -31,7 +31,7 @@ func (s *userStoreService) Store(ctx context.Context, userDomain *domain.User) (
 		return nil, errors.Wrap(err, "user domais is not valid")
 	}
 
-	user, err := s.userRepo.Store(userDomain)
+	user, err := s.userRepo.Store(ctx, userDomain)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "it was not possible to save User on Database")

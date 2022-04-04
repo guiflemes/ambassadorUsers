@@ -19,7 +19,7 @@ func (s *userUpdateService) Update(ctx context.Context, userDomain *domain.User)
 		return nil, errors.Wrap(err, "user domais is not valid")
 	}
 
-	user, err := s.userRepo.Update(userDomain)
+	user, err := s.userRepo.Update(ctx, userDomain)
 
 	if err != nil {
 		return nil, err
