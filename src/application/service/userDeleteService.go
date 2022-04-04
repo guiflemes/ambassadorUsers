@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"users/src/application/port/out"
 	"users/src/utils"
 
@@ -11,7 +12,7 @@ type userDeleteService struct {
 	userRepo out.UserRepository
 }
 
-func (s *userDeleteService) Delete(id string) error {
+func (s *userDeleteService) Delete(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.Wrap(utils.ErrInvalidParamater, "id can't be empty")
 	}

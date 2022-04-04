@@ -1,5 +1,9 @@
 package in
 
+import (
+	"context"
+)
+
 type DeleteUseCase interface {
-	Delete(id string) error
+	Delete(context.Context, string) error
 }

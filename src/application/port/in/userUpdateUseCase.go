@@ -1,9 +1,10 @@
 package in
 
 import (
+	"context"
 	"users/src/domain"
 )
 
 type UserUpdateUseCase interface {
-	Update(*domain.User) (*domain.User, error)
+	Update(context.Context, *domain.User) (*domain.User, error)
 }

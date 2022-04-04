@@ -6,6 +6,8 @@ import (
 	"users/src/domain"
 	"users/src/utils"
 
+	"context"
+
 	"github.com/pkg/errors"
 )
 
@@ -13,7 +15,7 @@ type userGetService struct {
 	userRepo out.UserRepository
 }
 
-func (s *userGetService) GetAll() (domain.UsersList, error) {
+func (s *userGetService) GetAll(ctx context.Context) (domain.UsersList, error) {
 	users, err := s.userRepo.GetAll()
 
 	if err != nil {
@@ -23,7 +25,7 @@ func (s *userGetService) GetAll() (domain.UsersList, error) {
 	return users, err
 }
 
-func (s *userGetService) GetById(id string) (*domain.User, error) {
+func (s *userGetService) GetById(ctx context.Context, id string) (*domain.User, error) {
 	user, err := s.userRepo.GetBy(map[string]interface{}{"ID": id})
 	if err != nil {
 		return nil, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given %s doest not exists", id))
@@ -31,7 +33,7 @@ func (s *userGetService) GetById(id string) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *userGetService) GetByEmail(email string) (bool, *domain.User, error) {
+func (s *userGetService) GetByEmail(ctx context.Context, email string) (bool, *domain.User, error) {
 	user, err := s.userRepo.GetBy(map[string]interface{}{"Email": email})
 
 	if err != nil {

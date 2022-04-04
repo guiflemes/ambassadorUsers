@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"users/src/application/port/in"
 	"users/src/application/port/out"
 )
@@ -22,10 +23,10 @@ func NewUserService(userRepo out.UserRepository) in.UserUseCase {
 
 }
 
-func (u *userService) GetAll() ([]*in.UserRespBody, error) {
+func (u *userService) GetAll(ctx context.Context) ([]*in.UserRespBody, error) {
 	var res []*in.UserRespBody
 
-	users, err := u.getService.GetAll()
+	users, err := u.getService.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func (u *userService) GetAll() ([]*in.UserRespBody, error) {
 	return res, nil
 }
 
-func (u *userService) GetById(id string) (*in.UserRespBody, error) {
-	userDomain, err := u.getService.GetById(id)
+func (u *userService) GetById(ctx context.Context, id string) (*in.UserRespBody, error) {
+	userDomain, err := u.getService.GetById(ctx, id)
 
 	if err != nil {
 		return nil, err
@@ -48,8 +49,8 @@ func (u *userService) GetById(id string) (*in.UserRespBody, error) {
 	return in.NewUserRespBody(userDomain), nil
 }
 
-func (u *userService) Update(userReq *in.UserUpdateReq) (*in.UserRespBody, error) {
-	userDomain, err := u.getService.GetById(userReq.Id)
+func (u *userService) Update(ctx context.Context, userReq *in.UserUpdateReq) (*in.UserRespBody, error) {
+	userDomain, err := u.getService.GetById(ctx, userReq.Id)
 
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func (u *userService) Update(userReq *in.UserUpdateReq) (*in.UserRespBody, error
 	userDomain.LastName = userReq.LastName
 	userDomain.Email = userReq.Email
 
-	userDomain, err = u.updateService.Update(userDomain)
+	userDomain, err = u.updateService.Update(ctx, userDomain)
 
 	if err != nil {
 		return nil, err
@@ -68,19 +69,19 @@ func (u *userService) Update(userReq *in.UserUpdateReq) (*in.UserRespBody, error
 	return in.NewUserRespBody(userDomain), nil
 }
 
-func (u *userService) Delete(id string) error {
-	return u.deleteService.Delete(id)
+func (u *userService) Delete(ctx context.Context, id string) error {
+	return u.deleteService.Delete(ctx, id)
 }
 
-func (u *userService) Store(user_req *in.UserReqBody) (*in.UserRespBody, error) {
+func (u *userService) Store(ctx context.Context, user_req *in.UserReqBody) (*in.UserRespBody, error) {
 
-	if exists, _, err := u.getService.GetByEmail(user_req.Email); exists {
+	if exists, _, err := u.getService.GetByEmail(ctx, user_req.Email); exists {
 		return nil, err
 	}
 
 	d := in.ToUserDomain(user_req)
 
-	userDomain, err := u.storeService.Store(d)
+	userDomain, err := u.storeService.Store(ctx, d)
 
 	if err != nil {
 		return nil, err

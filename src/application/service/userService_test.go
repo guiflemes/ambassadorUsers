@@ -6,13 +6,15 @@ import (
 	"users/src/application/port/in"
 	"users/src/domain"
 
+	"context"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 type mockStoreService struct{ mock.Mock }
 
-func (mock *mockStoreService) Store(*domain.User) (*domain.User, error) {
+func (mock *mockStoreService) Store(context.Context, *domain.User) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
 	return result.(*domain.User), args.Error(1)
@@ -20,7 +22,7 @@ func (mock *mockStoreService) Store(*domain.User) (*domain.User, error) {
 
 type mockUpdateService struct{ mock.Mock }
 
-func (mock *mockUpdateService) Update(data *domain.User) (*domain.User, error) {
+func (mock *mockUpdateService) Update(context.Context, *domain.User) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
 	return result.(*domain.User), args.Error(1)
@@ -28,24 +30,24 @@ func (mock *mockUpdateService) Update(data *domain.User) (*domain.User, error) {
 
 type mockDeleteService struct{ mock.Mock }
 
-func (mock *mockDeleteService) Delete(id string) error {
+func (mock *mockDeleteService) Delete(context.Context, string) error {
 	args := mock.Called()
 	return args.Error(0)
 }
 
 type mockGetService struct{ mock.Mock }
 
-func (mock *mockGetService) GetAll() (domain.UsersList, error) {
+func (mock *mockGetService) GetAll(context.Context) (domain.UsersList, error) {
 	args := mock.Called()
 	result := args.Get(0)
 	return result.(domain.UsersList), args.Error(1)
 }
-func (mock *mockGetService) GetById(id string) (*domain.User, error) {
+func (mock *mockGetService) GetById(context.Context, string) (*domain.User, error) {
 	args := mock.Called()
 	result := args.Get(0)
 	return result.(*domain.User), args.Error(1)
 }
-func (mock *mockGetService) GetByEmail(email string) (bool, *domain.User, error) {
+func (mock *mockGetService) GetByEmail(context.Context, string) (bool, *domain.User, error) {
 	args := mock.Called()
 	result := args.Get(1)
 	return args.Bool(0), result.(*domain.User), args.Error(2)
@@ -75,7 +77,9 @@ func testGetAllOk(t *testing.T) {
 		getService:    mockServ,
 	}
 
-	want, wantErr := userService.GetAll()
+	ctx := context.Background()
+
+	want, wantErr := userService.GetAll(ctx)
 
 	mockServ.AssertExpectations(t)
 
@@ -108,7 +112,9 @@ func testGetAllError(t *testing.T) {
 		getService:    mockServ,
 	}
 
-	want, wantErr := userService.GetAll()
+	ctx := context.Background()
+
+	want, wantErr := userService.GetAll(ctx)
 
 	mockServ.AssertExpectations(t)
 
@@ -139,7 +145,9 @@ func testGetByIdOk(t *testing.T) {
 		getService:    mockRepo,
 	}
 
-	want, wantErr := userService.GetById("id")
+	ctx := context.Background()
+
+	want, wantErr := userService.GetById(ctx, "id")
 
 	expectedResult := &in.UserRespBody{
 		Id:        "378927492",
@@ -168,7 +176,9 @@ func testGetByIdError(t *testing.T) {
 		getService:    mockServ,
 	}
 
-	want, wantErr := userService.GetById("id")
+	ctx := context.Background()
+
+	want, wantErr := userService.GetById(ctx, "id")
 
 	assert.Nil(want)
 	assert.Error(wantErr)
@@ -253,7 +263,9 @@ func testStore(t *testing.T) {
 				Password:  "pass123",
 			}
 
-			want, wantError := userService.Store(req)
+			ctx := context.Background()
+
+			want, wantError := userService.Store(ctx, req)
 
 			if !scenario.getEmailResults.exists {
 				assert.Equal(want, scenario.expectedResult)
@@ -338,7 +350,9 @@ func testUpdate(t *testing.T) {
 				Email:     "email@email.com",
 			}
 
-			want, wantErr := userSrv.Update(req)
+			ctx := context.Background()
+
+			want, wantErr := userSrv.Update(ctx, req)
 
 			if wantErr != nil {
 				assert.Nil(want)
