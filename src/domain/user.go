@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"time"
 	"users/src/domain/validators"
 )
 
@@ -15,6 +16,8 @@ type User struct {
 	Email     string `validate:"required,email"`
 	Password  string `validate:"required,gt=6"`
 	IsActive  bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UsersList []*User

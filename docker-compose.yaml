@@ -2,18 +2,24 @@ version: '3.9'
 services:
   users_backend:
     build: .
+    restart: always
     ports:
       - 8001:8000
-    volumes:
-      - .:/app
     depends_on:
       - users_db
+    volumes:
+      - .:/app
+    
 
   users_db:
-    image: mysql:8
+    image: postgres:13
+    volumes:
+        - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     restart: always
     environment:
-      MYSQL_DATABASE: users
-      MYSQL_ROOT_PASSWORD: root
-    volumes:
-      - .dbdata:/var/lib/mysql
+        - POSTGRES_HOST=users_db
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=users_db
+    ports:
+        - 5436:5436
