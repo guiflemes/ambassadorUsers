@@ -4,4 +4,4 @@ tmp/
 
 # Configs
 config/conf.*
-app.env
+.env
