@@ -22,6 +22,8 @@ type User struct {
 
 type UsersList []*User
 
+type Money string
+
 func (u *User) IsValid() (bool, error) {
 
 	err := Validator(u)
