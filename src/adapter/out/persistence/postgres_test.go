@@ -1,44 +1,83 @@
 package persistence
 
 import (
-	"github.com/jmoiron/sqlx"
+	"fmt"
+	"testing"
+	"users/src/domain"
+
+	"context"
+
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
-const databaseTestName = ""
+var sHost = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	"testdb",
+	"5432",
+	"postgres",
+	"postgres",
+	"testdb",
+)
 
 type postgresTestSuite struct {
 	suite.Suite
-	db *sqlx.DB
+	repo *postgresRepository
 }
 
 func (s *postgresTestSuite) SetupSuite() {
-	var err error
-
-	s.db, err = sqlx.Open("postgres", "")
-	require.NoError(s.T(), err)
+	s.repo = NewPostgresRepository(sHost)
 
 }
 
-func (s *postgresTestSuite) TearDownTest() {
-	query := `SELECT TABLE_NAME FROM users.tables WHERE table_schema=´` + databaseTestName + "'"
+func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
+	query := `INSERT into users (:id, :first_name, :last_name, :email, :password)`
+	ctx := context.Background()
+	result, err := s.repo.client.NamedExecContext(ctx, query, users)
 
-	rows, err := s.db.Query(query)
+	require.NoError(s.T(), err)
+	rows, err := result.RowsAffected()
+	require.NoError(s.T(), err)
+	require.True(s.T(), rows > 0)
+
+}
+
+func (s *postgresTestSuite) TestRepoGetAll() {
+
+	users := domain.UsersList{
+		&domain.User{
+			Id:        "id",
+			FirstName: "first",
+			LastName:  "last",
+			Email:     "email@email.com",
+			Password:  "pass123",
+			IsActive:  true,
+		},
+		&domain.User{
+			Id:        "id",
+			FirstName: "first",
+			LastName:  "last",
+			Email:     "email@email.com",
+			Password:  "pass123",
+			IsActive:  true,
+		},
+	}
+
+	s.seedUsers(users)
+
+	results, err := s.repo.GetAll(context.Background())
 	require.NoError(s.T(), err)
 
-	for rows.Next() {
-		var tableName string
-		if err := rows.Scan(&tableName); err != nil {
-			panic(err)
-		}
+	wantID1, wantID2 := results[0].Id, results[1].Id
+	ids := []string{users[0].Id, users[1].Id}
 
-		if tableName == "schema_migrations" {
-			continue
-		}
+	require.Contains(s.T(), ids, wantID1)
+	require.Contains(s.T(), ids, wantID2)
 
-		queryTruncate := "TRUNCATE TABLE " + tableName
-		_, err = s.db.Exec(queryTruncate)
-		require.NoError(s.T(), err)
+}
+
+func TestPostegresRepoSuite(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping long-running test.")
 	}
+	suite.Run(t, new(postgresTestSuite))
 }

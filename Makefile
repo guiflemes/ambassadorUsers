@@ -14,15 +14,18 @@ up:
 down:
 	docker-compose down --remove-orphans
 
-dump_schema:
-	pg_dump -s $(POSTGRES_URI) | psql $(POSTGRES_TEST_URI)
+up_db_test:
+	docker container run -d -p 5437:5432 --name testdb --net users_users_network --mount type=volume,src=dbtest,dst=$(SQL_PATH):/docker-entrypoint-initdb.d/create_tables.sql\
+		   -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=testdb -e POSTGRES_HOST=testdb postgres:13-alpine
 
-drop_shema:
-	./entrypoint.sh .env ./script.sh
+down_db_test:
+	docker container rm -f testdb
+
+run_test:
+	- go test -v  ./src/...
 
 
-# test_integration:
-#	dump_schema test drop_shema
+test: up_db_test run_test down_db_test
 
-# test:
-# 	dump_schema run_test
+coco:
+	- docker-compose exec users_backend go test -v  ./src/...

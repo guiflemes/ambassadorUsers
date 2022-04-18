@@ -10,6 +10,9 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
+    networks:
+      - users_network
+
     
 
   users_db:
@@ -30,18 +33,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  testdb:
-    image: postgres:13-alpine
-    restart: always
-    environment: 
-        - POSTGRES_HOST=testdb
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
-        - POSTGRES_DB=testdb
-    ports:
-        - 5437:5432
+    networks:
+      - users_network
 
 volumes:
   data:
+
+networks:
+  users_network:
+
     
