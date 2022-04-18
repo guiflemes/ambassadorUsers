@@ -22,10 +22,8 @@ down_db_test:
 	docker container rm -f testdb
 
 run_test:
-	- go test -v  ./src/...
+	- docker-compose exec users_backend go test -v  ./src/..
 
 
 test: up_db_test run_test down_db_test
 
-coco:
-	- docker-compose exec users_backend go test -v  ./src/...
