@@ -2,18 +2,20 @@ package persistence
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"users/src/domain"
 
 	"context"
 
+	uuid "github.com/nu7hatch/gouuid"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
 var sHost = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-	"testdb",
-	"5432",
+	"localhost",
+	"5437",
 	"postgres",
 	"postgres",
 	"testdb",
@@ -25,6 +27,7 @@ type postgresTestSuite struct {
 }
 
 func (s *postgresTestSuite) SetupSuite() {
+	log.Printf("sHost= %s", sHost)
 	s.repo = NewPostgresRepository(sHost)
 
 }
@@ -43,9 +46,12 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 
 func (s *postgresTestSuite) TestRepoGetAll() {
 
+	uid1, _ := uuid.NewV4()
+	uid2, _ := uuid.NewV4()
+
 	users := domain.UsersList{
 		&domain.User{
-			Id:        "id",
+			Id:        uid1.String(),
 			FirstName: "first",
 			LastName:  "last",
 			Email:     "email@email.com",
@@ -53,7 +59,7 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 			IsActive:  true,
 		},
 		&domain.User{
-			Id:        "id",
+			Id:        uid2.String(),
 			FirstName: "first",
 			LastName:  "last",
 			Email:     "email@email.com",

@@ -15,15 +15,18 @@ down:
 	docker-compose down --remove-orphans
 
 up_db_test:
-	docker container run -d -p 5437:5432 --name testdb --net users_users_network --mount type=volume,src=dbtest,dst=$(SQL_PATH):/docker-entrypoint-initdb.d/create_tables.sql\
+	docker container run -d -p 5437:5432 --name testdb -v $(SQL_PATH):/docker-entrypoint-initdb.d/create_tables.sql\
 		   -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=testdb -e POSTGRES_HOST=testdb postgres:13-alpine
+
 
 down_db_test:
 	docker container rm -f testdb
 
 run_test:
-	- docker-compose exec users_backend go test -v  ./src/..
+	- ./scripts/tests.sh
 
 
 test: up_db_test run_test down_db_test
 
+
+# up_db_test --> run_test V works

@@ -11,7 +11,7 @@ services:
     volumes:
       - .:/app
     networks:
-      - users_network
+      - host
 
     
 
@@ -34,12 +34,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - users_network
+      - host
 
 volumes:
   data:
 
 networks:
-  users_network:
+  host:
 
     
