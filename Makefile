@@ -28,5 +28,3 @@ run_test:
 
 test: up_db_test run_test down_db_test
 
-
-# up_db_test --> run_test V works

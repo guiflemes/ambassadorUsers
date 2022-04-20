@@ -10,14 +10,14 @@ var (
 )
 
 type User struct {
-	Id        string `validate:"required"`
-	FirstName string `validate:"required,gt=2"`
-	LastName  string `validate:"required,gt=3"`
-	Email     string `validate:"required,email"`
-	Password  string `validate:"required,gt=6"`
-	IsActive  bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id        string    `validate:"required" db:"id"`
+	FirstName string    `validate:"required,gt=2" db:"first_name"`
+	LastName  string    `validate:"required,gt=3" db:"last_name"`
+	Email     string    `validate:"required,email" db:"email"`
+	Password  string    `validate:"required,gt=6" db:"password"`
+	IsActive  bool      `db:"is_active"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type UsersList []*User

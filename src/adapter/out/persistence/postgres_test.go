@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"fmt"
-	"log"
 	"testing"
 	"users/src/domain"
 
@@ -27,13 +26,13 @@ type postgresTestSuite struct {
 }
 
 func (s *postgresTestSuite) SetupSuite() {
-	log.Printf("sHost= %s", sHost)
 	s.repo = NewPostgresRepository(sHost)
 
 }
 
 func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
-	query := `INSERT into users (:id, :first_name, :last_name, :email, :password)`
+	query := `INSERT INTO users (id, first_name, last_name, email, password)
+	VALUES (:id, :first_name, :last_name, :email, :password)`
 	ctx := context.Background()
 	result, err := s.repo.client.NamedExecContext(ctx, query, users)
 
@@ -71,6 +70,7 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 	s.seedUsers(users)
 
 	results, err := s.repo.GetAll(context.Background())
+
 	require.NoError(s.T(), err)
 
 	wantID1, wantID2 := results[0].Id, results[1].Id

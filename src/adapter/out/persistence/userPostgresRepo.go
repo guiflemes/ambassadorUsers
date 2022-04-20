@@ -70,12 +70,12 @@ func (repo *postgresRepository) GetAll(ctx context.Context) (domain.UsersList, e
 		updated_at FROM users;
 	`
 
-	var users domain.UsersList
+	users := &domain.UsersList{}
 
 	err := repo.client.SelectContext(ctx, users, query)
 	if err != nil {
 		return nil, errors.Wrap(err, "error running select all query db")
 	}
 
-	return users, nil
+	return *users, nil
 }
