@@ -20,11 +20,12 @@ i=1
 sp="/-\|"
 echo -n ' '
 progress="..."
+echo -ne "\n"
 while true ; do
-    echo -ne "\rwaiting testdb  \b${sp:i++%${#sp}:1} ${progress}"
+    echo -ne "\r=== Waiting for test database to connect  \b${sp:i++%${#sp}:1} ${progress}"
     myfunc
     if  [ $? -eq "1" ]; then
-        echo -ne "\ntestdb is ready\n"
+        echo -ne "\n=== Test database is ready\n\n"
         go test -v  ./src/...
         break
     fi
