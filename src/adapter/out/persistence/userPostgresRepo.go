@@ -52,6 +52,7 @@ func (repo *postgresRepository) Store(ctx context.Context, user *domain.User) (*
 	defer rows.Close()
 
 	err = rows.Scan(
+		&user.Id,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

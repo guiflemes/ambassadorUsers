@@ -6,7 +6,7 @@ LANG_PT_BR="aceitando conexões"
 myfunc()
 {
     langs=( $LANG_ENG $LANG_PT_BR)
-    v=$(docker exec testdb pg_isready -U postgres) 
+    v=$(docker exec testdb pg_isready -U postgres)
     for l in "${langs[@]}";do
         if [[ $v == *"$l"* ]]; then
             return 1

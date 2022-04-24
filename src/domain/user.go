@@ -10,7 +10,7 @@ var (
 )
 
 type User struct {
-	Id        string    `validate:"required" db:"id"`
+	Id        string    `db:"id"`
 	FirstName string    `validate:"required,gt=2" db:"first_name"`
 	LastName  string    `validate:"required,gt=3" db:"last_name"`
 	Email     string    `validate:"required,email" db:"email"`

@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"users/src/domain"
 
@@ -43,6 +44,80 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 
 }
 
+func (s *postgresTestSuite) TestRepoStore() {
+	uid1, _ := uuid.NewV4()
+
+	type testCase struct {
+		description      string
+		user             *domain.User
+		expectedErrorMsg string
+		idChecker        func(ids ...string)
+	}
+
+	for _, scenario := range []testCase{
+		{
+			description: "Ok insert user with id",
+			user: &domain.User{
+				Id:        uid1.String(),
+				FirstName: "first",
+				LastName:  "last",
+				Email:     "email@email.com",
+				Password:  "pass123",
+				IsActive:  true,
+			},
+			expectedErrorMsg: "",
+			idChecker:        func(ids ...string) { s.Equal(ids[0], ids[1]) },
+		},
+		{
+			description: "OK insert user without id",
+			user: &domain.User{
+				FirstName: "first",
+				LastName:  "last",
+				Email:     "email2@email.com",
+				Password:  "pass123",
+				IsActive:  true,
+			},
+			expectedErrorMsg: "",
+			idChecker:        func(ids ...string) { s.NotNil(ids[1]) },
+		},
+		{
+			description: "ERROR insert user with alredy exists email",
+			user: &domain.User{
+				FirstName: "first",
+				LastName:  "last",
+				Email:     "email2@email.com",
+				Password:  "pass123",
+				IsActive:  true,
+			},
+			expectedErrorMsg: `duplicate key value violates unique constraint "users_email_key"`,
+			idChecker:        nil,
+		},
+	} {
+		s.Run(scenario.description, func() {
+			result, err := s.repo.Store(context.Background(), scenario.user)
+
+			if err != nil {
+				log.Printf("error: %s", err)
+				s.Error(err)
+				//TODO check error msg
+				// s.ErrorContainsf(err )
+				return
+			}
+
+			s.NotNil(result.CreatedAt)
+			s.NotNil(result.UpdatedAt)
+			scenario.idChecker(scenario.user.Id, result.Id)
+
+		})
+	}
+
+}
+
+func (s *postgresTestSuite) TearDownTest() {
+	query := "DELETE FROM users;"
+	_, _ = s.repo.client.Query(query)
+}
+
 func (s *postgresTestSuite) TestRepoGetAll() {
 
 	uid1, _ := uuid.NewV4()
@@ -61,7 +136,7 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 			Id:        uid2.String(),
 			FirstName: "first",
 			LastName:  "last",
-			Email:     "email@email.com",
+			Email:     "emai2l@email.com",
 			Password:  "pass123",
 			IsActive:  true,
 		},
@@ -71,13 +146,13 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 
 	results, err := s.repo.GetAll(context.Background())
 
-	require.NoError(s.T(), err)
+	s.NoError(err)
 
 	wantID1, wantID2 := results[0].Id, results[1].Id
 	ids := []string{users[0].Id, users[1].Id}
 
-	require.Contains(s.T(), ids, wantID1)
-	require.Contains(s.T(), ids, wantID2)
+	s.Contains(ids, wantID1)
+	s.Contains(ids, wantID2)
 
 }
 
