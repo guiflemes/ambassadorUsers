@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"fmt"
-	"log"
 	"testing"
 	"users/src/domain"
 
@@ -45,7 +44,6 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 }
 
 func (s *postgresTestSuite) TestRepoStore() {
-	uid1, _ := uuid.NewV4()
 
 	type testCase struct {
 		description      string
@@ -58,7 +56,6 @@ func (s *postgresTestSuite) TestRepoStore() {
 		{
 			description: "Ok insert user with id",
 			user: &domain.User{
-				Id:        uid1.String(),
 				FirstName: "first",
 				LastName:  "last",
 				Email:     "email@email.com",
@@ -69,23 +66,11 @@ func (s *postgresTestSuite) TestRepoStore() {
 			idChecker:        func(ids ...string) { s.Equal(ids[0], ids[1]) },
 		},
 		{
-			description: "OK insert user without id",
-			user: &domain.User{
-				FirstName: "first",
-				LastName:  "last",
-				Email:     "email2@email.com",
-				Password:  "pass123",
-				IsActive:  true,
-			},
-			expectedErrorMsg: "",
-			idChecker:        func(ids ...string) { s.NotNil(ids[1]) },
-		},
-		{
 			description: "ERROR insert user with alredy exists email",
 			user: &domain.User{
 				FirstName: "first",
 				LastName:  "last",
-				Email:     "email2@email.com",
+				Email:     "email@email.com",
 				Password:  "pass123",
 				IsActive:  true,
 			},
@@ -97,10 +82,7 @@ func (s *postgresTestSuite) TestRepoStore() {
 			result, err := s.repo.Store(context.Background(), scenario.user)
 
 			if err != nil {
-				log.Printf("error: %s", err)
-				s.Error(err)
-				//TODO check error msg
-				// s.ErrorContainsf(err )
+				s.ErrorContains(err, scenario.expectedErrorMsg)
 				return
 			}
 
