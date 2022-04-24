@@ -20,7 +20,7 @@ up_db_test:
 
 
 down_db_test:
-	docker container rm -f testdb
+	docker container rm -f testdb -v
 
 run_test:
 	- ./scripts/tests.sh
