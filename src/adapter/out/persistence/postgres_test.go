@@ -94,14 +94,14 @@ func (s *postgresTestSuite) TestRepoGetBy() {
 			description:      "Error get by id, passing invalid uuid",
 			filter:           map[string]interface{}{"id": "error_error"},
 			expectedResult:   user1,
-			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Id, expected.Id) },
+			checkerField:     nil,
 			expectedErrorMsg: "invalid input syntax for type uuid",
 		},
 		{
 			description:      "Error get by email",
 			filter:           map[string]interface{}{"email": "errorl@email.com"},
 			expectedResult:   user2,
-			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Email, expected.Email) },
+			checkerField:     nil,
 			expectedErrorMsg: "no rows in result set",
 		},
 	} {
