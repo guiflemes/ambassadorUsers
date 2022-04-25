@@ -43,6 +43,83 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 
 }
 
+func (s *postgresTestSuite) TestRepoGetBy() {
+	uid1, _ := uuid.NewV4()
+	uid2, _ := uuid.NewV4()
+
+	user1 := &domain.User{
+		Id:        uid1.String(),
+		FirstName: "first",
+		LastName:  "last",
+		Email:     "email@email.com",
+		Password:  "pass123",
+		IsActive:  true,
+	}
+
+	user2 := &domain.User{
+		Id:        uid2.String(),
+		FirstName: "first",
+		LastName:  "last",
+		Email:     "emai2l@email.com",
+		Password:  "pass123",
+		IsActive:  true,
+	}
+
+	s.seedUsers(domain.UsersList{user1, user2})
+
+	type testCase struct {
+		description      string
+		filter           map[string]interface{}
+		expectedResult   *domain.User
+		checkerField     func(result *domain.User, expected *domain.User)
+		expectedErrorMsg string
+	}
+
+	for _, scenario := range []testCase{
+		{
+			description:      "Ok get by id",
+			filter:           map[string]interface{}{"id": uid1.String()},
+			expectedResult:   user1,
+			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Id, expected.Id) },
+			expectedErrorMsg: "",
+		},
+		{
+			description:      "Ok get by email",
+			filter:           map[string]interface{}{"email": "emai2l@email.com"},
+			expectedResult:   user2,
+			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Email, expected.Email) },
+			expectedErrorMsg: "",
+		},
+		{
+			description:      "Error get by id, passing invalid uuid",
+			filter:           map[string]interface{}{"id": "error_error"},
+			expectedResult:   user1,
+			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Id, expected.Id) },
+			expectedErrorMsg: "invalid input syntax for type uuid",
+		},
+		{
+			description:      "Error get by email",
+			filter:           map[string]interface{}{"email": "errorl@email.com"},
+			expectedResult:   user2,
+			checkerField:     func(result *domain.User, expected *domain.User) { s.Equal(result.Email, expected.Email) },
+			expectedErrorMsg: "no rows in result set",
+		},
+	} {
+		s.Run(scenario.description, func() {
+			result, err := s.repo.GetBy(context.Background(), scenario.filter)
+
+			if err != nil {
+				s.ErrorContains(err, scenario.expectedErrorMsg)
+				return
+			}
+
+			scenario.checkerField(result, scenario.expectedResult)
+
+		})
+	}
+
+}
+
 func (s *postgresTestSuite) TestRepoStore() {
 
 	type testCase struct {

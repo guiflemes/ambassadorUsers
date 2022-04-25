@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"users/src/domain"
 
 	_ "github.com/lib/pq"
@@ -82,4 +83,29 @@ func (repo *postgresRepository) GetAll(ctx context.Context) (domain.UsersList, e
 	}
 
 	return *users, nil
+}
+
+func (repo *postgresRepository) GetBy(ctx context.Context, filter map[string]interface{}) (*domain.User, error) {
+
+	if len(filter) > 1 {
+		return nil, errors.New("only one parameter is accepted")
+	}
+
+	var field string
+	var value interface{}
+
+	for k, v := range filter {
+		field, value = k, v
+	}
+
+	user := &domain.User{}
+	query := fmt.Sprintf("SELECT * FROM users WHERE %s=$1", field)
+	err := repo.client.Get(user, query, value)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting an user")
+	}
+
+	return user, nil
+
 }
