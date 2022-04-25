@@ -104,6 +104,13 @@ func (s *postgresTestSuite) TestRepoGetBy() {
 			checkerField:     nil,
 			expectedErrorMsg: "no rows in result set",
 		},
+		{
+			description:      "Error more than two filters",
+			filter:           map[string]interface{}{"id": uid1.String(), "email": "errorl@email.com"},
+			expectedResult:   user1,
+			checkerField:     nil,
+			expectedErrorMsg: "only one parameter is accepted",
+		},
 	} {
 		s.Run(scenario.description, func() {
 			result, err := s.repo.GetBy(context.Background(), scenario.filter)
