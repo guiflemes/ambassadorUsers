@@ -109,3 +109,19 @@ func (repo *postgresRepository) GetBy(ctx context.Context, filter map[string]int
 	return user, nil
 
 }
+
+func (repo *postgresRepository) Delete(ctx context.Context, id string) error {
+	query := "DELETE * FROM users WHERE id=$1"
+
+	stmt, err := repo.client.PrepareContext(ctx, query)
+	if err != nil {
+		return errors.Wrap(err, "error preparing stmt to Delete an user")
+	}
+
+	if _, err := stmt.ExecContext(ctx, id); err != nil {
+		return errors.Wrap(err, "error deleting an user")
+	}
+
+	return nil
+
+}
