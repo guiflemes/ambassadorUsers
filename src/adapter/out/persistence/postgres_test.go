@@ -43,6 +43,52 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 
 }
 
+func (s *postgresTestSuite) TestRepoDelete() {
+	uid1, _ := uuid.NewV4()
+
+	user1 := &domain.User{
+		Id:        uid1.String(),
+		FirstName: "first",
+		LastName:  "last",
+		Email:     "email@email.com",
+		Password:  "pass123",
+		IsActive:  true,
+	}
+
+	s.seedUsers(domain.UsersList{user1})
+
+	type testCase struct {
+		description      string
+		expectedErrorMsg string
+		id               string
+	}
+
+	for _, scenario := range []testCase{
+		{
+			description:      "OK, delete its ok",
+			expectedErrorMsg: "",
+			id:               uid1.String(),
+		},
+		{
+			description:      "ERROR, delete its ok",
+			expectedErrorMsg: `invalid input syntax for type uuid: "invalid uuid"`,
+			id:               "invalid uuid",
+		},
+	} {
+		s.Run(scenario.description, func() {
+			err := s.repo.Delete(context.Background(), scenario.id)
+
+			if err != nil {
+				s.ErrorContains(err, scenario.expectedErrorMsg)
+				return
+			}
+
+			s.Nil(err)
+		})
+	}
+
+}
+
 func (s *postgresTestSuite) TestRepoGetBy() {
 	uid1, _ := uuid.NewV4()
 	uid2, _ := uuid.NewV4()
