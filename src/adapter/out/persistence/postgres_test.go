@@ -43,6 +43,62 @@ func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
 
 }
 
+func (s *postgresTestSuite) TestUpdateDelete() {
+	uid1, _ := uuid.NewV4()
+	uid2, _ := uuid.NewV4()
+
+	user1 := &domain.User{
+		Id:        uid1.String(),
+		FirstName: "first",
+		LastName:  "last",
+		Email:     "email@email.com",
+		Password:  "",
+		IsActive:  true,
+	}
+
+	user2 := &domain.User{
+		Id:        uid2.String(),
+		FirstName: "first",
+		LastName:  "last",
+		Email:     "email2@email.com",
+		Password:  "",
+		IsActive:  true,
+	}
+
+	s.seedUsers(domain.UsersList{user1})
+
+	type testCase struct {
+		description      string
+		expectedErrorMsg string
+		user             *domain.User
+	}
+
+	for _, scenario := range []testCase{
+		{
+			description:      "OK, successful update user",
+			expectedErrorMsg: "",
+			user:             user1,
+		},
+		{
+			description:      "ERROR, failed update user",
+			expectedErrorMsg: fmt.Sprintf(`the given user_id "%s" does not exist`, uid2.String()),
+			user:             user2,
+		},
+	} {
+		s.Run(scenario.description, func() {
+			_, err := s.repo.Update(context.Background(), scenario.user)
+
+			if err != nil {
+				s.ErrorContains(err, scenario.expectedErrorMsg)
+				return
+			}
+
+			result, _ := s.repo.GetBy(context.Background(), map[string]interface{}{"id": scenario.user.Id})
+			s.NotNil(result.UpdatedAt)
+		})
+	}
+}
+
 func (s *postgresTestSuite) TestRepoDelete() {
 	uid1, _ := uuid.NewV4()
 

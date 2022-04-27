@@ -115,7 +115,7 @@ func (repo *postgresRepository) Delete(ctx context.Context, id string) error {
 
 	stmt, err := repo.client.PrepareContext(ctx, query)
 	if err != nil {
-		return errors.Wrap(err, "error preparing stmt to Delete an user")
+		return errors.Wrap(err, "error preparing stmt to delete an user")
 	}
 
 	if _, err := stmt.ExecContext(ctx, id); err != nil {
@@ -124,4 +124,28 @@ func (repo *postgresRepository) Delete(ctx context.Context, id string) error {
 
 	return nil
 
+}
+
+func (repo *postgresRepository) Update(ctx context.Context, user *domain.User) (*domain.User, error) {
+	query := "UPDATE users set first_name=$2, last_name=$3, email=$4 WHERE id=$1"
+
+	stmt, err := repo.client.PrepareContext(ctx, query)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "error preparing stmt to update an user")
+	}
+
+	result, err := stmt.ExecContext(ctx, user.Id, user.FirstName, user.LastName, user.Email)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "error updating an user")
+	}
+
+	rows, _ := result.RowsAffected()
+
+	if rows == 0 {
+		return nil, errors.New(fmt.Sprintf(`the given user_id "%s" does not exist`, user.Id))
+	}
+
+	return user, nil
 }
