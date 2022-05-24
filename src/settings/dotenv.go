@@ -15,6 +15,11 @@ func init() {
 
 }
 
-func GETSTRING(key string) string {
-	return os.Getenv(key)
+func GETENV(key string) string {
+	env, isPresent := os.LookupEnv(key)
+
+	if !isPresent {
+		log.Fatalf("%s is not present in .env", key)
+	}
+	return env
 }

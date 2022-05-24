@@ -149,3 +149,7 @@ func (repo *postgresRepository) Update(ctx context.Context, user *domain.User) (
 
 	return user, nil
 }
+
+// func (repo *postgresRepository) Find(ctx context.Context, )(domain.UsersList, error) {
+
+// }
