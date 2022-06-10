@@ -7,6 +7,7 @@ import (
 
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	uuid "github.com/nu7hatch/gouuid"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -26,7 +27,13 @@ type postgresTestSuite struct {
 }
 
 func (s *postgresTestSuite) SetupSuite() {
-	s.repo = NewPostgresRepository(sHost)
+
+	db, err := sqlx.Connect("postgres", sHost)
+	if err != nil {
+		panic(err)
+	}
+
+	s.repo = NewPostgresRepository(db)
 
 }
 

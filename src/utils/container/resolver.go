@@ -2,7 +2,9 @@ package container
 
 import (
 	"users/src/adapter/out/persistence"
-	"users/src/settings/config"
+	"users/src/utils/config"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func Resolve(config config.Config) (Container, error) {
@@ -11,7 +13,7 @@ func Resolve(config config.Config) (Container, error) {
 		return Container{}, err
 	}
 
-	repos, err := resolveRepositories("")
+	repos, err := resolveRepositories(adapters.Db)
 
 	if err != nil {
 		return Container{}, err
@@ -26,11 +28,13 @@ func Resolve(config config.Config) (Container, error) {
 }
 
 func resolveAdapters(config config.Config) (Adapters, error) {
-	return Adapters{}, nil
+	psql := persistence.NewDb(config.Database)
+
+	return Adapters{Db: psql}, nil
 }
 
-func resolveRepositories(dns string) (Repositories, error) {
-	userRepo := persistence.NewPostgresRepository(dns)
+func resolveRepositories(db *sqlx.DB) (Repositories, error) {
+	userRepo := persistence.NewPostgresRepository(db)
 	repos := Repositories{
 		User: userRepo,
 	}

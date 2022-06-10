@@ -5,33 +5,19 @@ import (
 	"fmt"
 	"users/src/domain"
 
-	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 type postgresRepository struct {
 	client *sqlx.DB
 }
 
-func newPostgresSQL(dsn string) *sqlx.DB {
-
-	db, err := sqlx.Connect("postgres", dsn)
-
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-func NewPostgresRepository(dsn string) *postgresRepository {
-
-	postgresDB := newPostgresSQL(dsn)
+func NewPostgresRepository(db *sqlx.DB) *postgresRepository {
 
 	repo := &postgresRepository{
-		client: postgresDB,
+		client: db,
 	}
 
 	return repo
