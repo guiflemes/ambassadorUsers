@@ -1,9 +1,7 @@
 package main
 
-import (
-	"users/src/settings"
-)
+import "users/src/startup"
 
 func main() {
-	settings.StartApp()
+	startup.StartApp()
 }

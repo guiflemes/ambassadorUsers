@@ -7,19 +7,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Resolve(config config.Config) (Container, error) {
+func Resolve(config config.Config) (*Container, error) {
 	adapters, err := resolveAdapters(config)
 	if err != nil {
-		return Container{}, err
+		return nil, err
 	}
 
 	repos, err := resolveRepositories(adapters.Db)
 
 	if err != nil {
-		return Container{}, err
+		return nil, err
 	}
 
-	cont := Container{
+	cont := &Container{
 		Adapters:     adapters,
 		Repositories: repos,
 	}

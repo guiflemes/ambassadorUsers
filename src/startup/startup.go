@@ -1,7 +1,9 @@
-package settings
+package startup
 
 import (
 	"log"
+	"users/src/utils/config"
+	"users/src/utils/container"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -10,13 +12,21 @@ import (
 func StartApp() {
 	log.Print("StartApp")
 
+	config := config.Parser()
+
+	ctr, err := container.Resolve(config)
+
+	if err != nil {
+		panic(err)
+	}
+
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
 	}))
 
-	setup(app)
-
+	initRouters(app, ctr)
 	app.Listen(":8000")
+
 }
