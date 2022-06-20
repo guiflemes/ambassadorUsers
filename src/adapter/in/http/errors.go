@@ -1,7 +1,7 @@
 package http
 
 import (
-	"log"
+	"users/src/adapter/in/http/transport"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,6 +17,6 @@ func NewErrorHandler() *ErrorHandler {
 }
 
 func (f *ErrorHandler) HandleError(c *fiber.Ctx, err error, code int) {
-	log.Print(err)
-	c.Status(code).SendString(err.Error())
+	payload := transport.Encode(nil, err.Error(), "false")
+	transport.Send(c, payload, code)
 }
