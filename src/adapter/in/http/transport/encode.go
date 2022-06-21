@@ -1,13 +1,19 @@
 package transport
 
-type Encoder struct {
+type Encoder interface {
+	Encode(interface{}, interface{}, interface{}) *Encoded
+}
+
+type Encoded struct {
 	Data    interface{} `json:"data"`
 	Error   interface{} `json:"error"`
 	Success interface{} `json:"success"`
 }
 
-func Encode(data interface{}, err interface{}, success interface{}) *Encoder {
-	return &Encoder{
+type BaseEncode struct{}
+
+func (e *BaseEncode) Encode(data interface{}, err interface{}, success interface{}) *Encoded {
+	return &Encoded{
 		Data:    data,
 		Error:   err,
 		Success: success,

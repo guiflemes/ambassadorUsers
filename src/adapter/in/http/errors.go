@@ -10,13 +10,11 @@ type HandlerErrorUseCase interface {
 	HandleError(*fiber.Ctx, error, int)
 }
 
-type ErrorHandler struct{}
-
-func NewErrorHandler() *ErrorHandler {
-	return &ErrorHandler{}
+type ErrorHandler struct {
+	encoder transport.Encoder
 }
 
-func (f *ErrorHandler) HandleError(c *fiber.Ctx, err error, code int) {
-	payload := transport.Encode(nil, err.Error(), "false")
+func (e *ErrorHandler) HandleError(c *fiber.Ctx, err error, code int) {
+	payload := e.encoder.Encode(nil, err.Error(), "false")
 	transport.Send(c, payload, code)
 }

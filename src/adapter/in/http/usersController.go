@@ -6,18 +6,24 @@ import (
 	"users/src/application/service"
 	"users/src/utils/container"
 
+	"users/src/adapter/in/http/transport"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 type UserController struct {
 	usecase      useCase.UserUseCase
 	errorHandler HandlerErrorUseCase
+	encoder      transport.Encoder
 }
 
 func NewUserController(ctr *container.Container) *UserController {
+	encode := &transport.BaseEncode{}
+
 	return &UserController{
 		usecase:      service.NewUserService(ctr.Repositories.User),
-		errorHandler: NewErrorHandler(),
+		errorHandler: &ErrorHandler{encoder: encode},
+		encoder:      encode,
 	}
 }
 
@@ -37,5 +43,6 @@ func (ctl *UserController) CreateUser(c *fiber.Ctx) {
 		return
 	}
 
-	c.Status(http.StatusOK).JSON(userResp)
+	payload := ctl.encoder.Encode(userResp, nil, "true")
+	transport.Send(c, payload, http.StatusOK)
 }
