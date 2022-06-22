@@ -15,6 +15,6 @@ type ErrorHandler struct {
 }
 
 func (e *ErrorHandler) HandleError(c *fiber.Ctx, err error, code int) {
-	payload := e.encoder.Encode(nil, err.Error(), "false")
+	payload := e.encoder.Encode(nil, err.Error(), false)
 	transport.Send(c, payload, code)
 }
