@@ -6,6 +6,7 @@ import (
 	"users/src/utils/config"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 func NewDb(conf config.Database) *sqlx.DB {

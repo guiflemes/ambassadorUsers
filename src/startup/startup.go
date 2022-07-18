@@ -6,7 +6,6 @@ import (
 	"users/src/utils/container"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func StartApp() {
@@ -22,10 +21,7 @@ func StartApp() {
 
 	app := fiber.New()
 
-	app.Use(cors.New(cors.Config{
-		AllowCredentials: true,
-	}))
-
+	setMiddleware(app)
 	initRouters(app, ctr)
 	app.Listen(":8000")
 

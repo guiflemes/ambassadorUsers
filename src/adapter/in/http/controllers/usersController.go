@@ -1,4 +1,4 @@
-package http
+package controllers
 
 import (
 	"net/http"
@@ -22,7 +22,7 @@ func NewUserController(ctr *container.Container) *UserController {
 
 	return &UserController{
 		userService:  service.NewUserService(ctr.Repositories.User),
-		errorHandler: &ErrorHandler{encoder: encode},
+		errorHandler: &ErrorHandler{encoder: nil},
 		encoder:      encode,
 	}
 }
