@@ -8,10 +8,11 @@ import (
 )
 
 func initRouters(app *fiber.App, ctr *container.Container) {
-	api := app.Group("api")
+	apiV1 := app.Group("api/v1")
 
-	api.Group("/v1")
+	clt := controllers.NewUserController(ctr)
 
-	controllers.NewUserController(ctr)
+	apiV1.Get("/users:id", clt.GetUser)
+	apiV1.Post("/users", clt.CreateUser)
 
 }

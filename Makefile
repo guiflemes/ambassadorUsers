@@ -3,6 +3,11 @@ export COMPOSE_DOCKER_CLI_BUILD=1
 export DOCKER_BUILDKIT=1
 include .env
 
+
+SQL_PATH="$(CURDIR)/sql/create_tables.sql"
+
+
+
 all: down build up test
 
 build:

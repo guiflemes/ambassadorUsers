@@ -8,8 +8,7 @@ type UserReqBody struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Password  string `json:"-"`
-	IsActive  bool   `json:"is_active"`
+	Password  string `json:"password"`
 }
 
 func ToUserDomain(userReq *UserReqBody) *domain.User {
@@ -18,7 +17,6 @@ func ToUserDomain(userReq *UserReqBody) *domain.User {
 		LastName:  userReq.LastName,
 		Email:     userReq.Email,
 		Password:  userReq.Password,
-		IsActive:  userReq.IsActive,
 	}
 }
 
@@ -31,7 +29,7 @@ type UserUpdateReq struct {
 
 type UserUpdatePasswordDTO struct {
 	Email    string `json:"email"`
-	Password string `json:"-"`
+	Password string `json:"password"`
 }
 
 func UserUpdateReqToDomain(dto *UserUpdateReq) *domain.User {

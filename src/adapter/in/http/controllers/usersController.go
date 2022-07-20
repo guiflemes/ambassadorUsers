@@ -11,52 +11,55 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserController struct {
+type UserController interface {
+	CreateUser(c *fiber.Ctx) error
+	GetUser(c *fiber.Ctx) error
+}
+
+type UserControllerDefault struct {
 	userService  useCase.UserUseCase
 	errorHandler HandlerErrorUseCase
 	encoder      transport.Encoder
 }
 
-func NewUserController(ctr *container.Container) *UserController {
+func NewUserController(ctr *container.Container) *UserControllerDefault {
 	encode := &transport.BaseEncode{}
 
-	return &UserController{
+	return &UserControllerDefault{
 		userService:  service.NewUserService(ctr.Repositories.User),
-		errorHandler: &ErrorHandler{encoder: nil},
+		errorHandler: &ErrorHandler{encoder: encode},
 		encoder:      encode,
 	}
 }
 
-func (ctl *UserController) CreateUser(c *fiber.Ctx) {
+func (ctl *UserControllerDefault) CreateUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userReq := &useCase.UserReqBody{}
 
 	if err := c.BodyParser(userReq); err != nil {
-		ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
-		return
+		return ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
 	}
 
 	userResp, err := ctl.userService.Store(ctx, userReq)
 
 	if err != nil {
-		ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
-		return
+		return ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
 	}
 
 	payload := ctl.encoder.Encode(userResp, nil, true)
-	transport.Send(c, payload, http.StatusCreated)
+	return transport.Send(c, payload, http.StatusCreated)
 }
 
-func (ctl *UserController) GetUser(c *fiber.Ctx) {
+func (ctl *UserControllerDefault) GetUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userID := c.Params("id")
 
 	userRep, err := ctl.userService.GetById(ctx, userID)
 
 	if err != nil {
-		ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
+		return ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
 	}
 
 	payload := ctl.encoder.Encode(userRep, nil, true)
-	transport.Send(c, payload, http.StatusOK)
+	return transport.Send(c, payload, http.StatusOK)
 }

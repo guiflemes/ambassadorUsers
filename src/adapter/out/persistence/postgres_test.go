@@ -259,7 +259,7 @@ func (s *postgresTestSuite) TestRepoStore() {
 			idChecker:        func(ids ...string) { s.Equal(ids[0], ids[1]) },
 		},
 		{
-			description: "ERROR insert user with alredy exists email",
+			description: "ERROR insert user with already exists email",
 			user: &domain.User{
 				FirstName: "first",
 				LastName:  "last",

@@ -80,6 +80,7 @@ func (u *userService) Store(ctx context.Context, user_req *in.UserReqBody) (*in.
 	}
 
 	d := in.ToUserDomain(user_req)
+	d.IsActive = true
 
 	userDomain, err := u.storeService.Store(ctx, d)
 
