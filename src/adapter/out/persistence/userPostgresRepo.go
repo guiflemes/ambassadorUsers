@@ -25,30 +25,18 @@ func NewPostgresRepository(db *sqlx.DB) *postgresRepository {
 
 func (repo *postgresRepository) Store(ctx context.Context, user *domain.User) (*domain.User, error) {
 
-	query := `INSERT into users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4)`
+	query := `INSERT into users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id`
 
 	stmt, err := repo.client.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.Wrap(err, "error preparing stmt to Store an user")
 	}
 
-	rows, err := stmt.QueryContext(ctx, user.FirstName, user.LastName, user.Email, user.Password)
+	defer stmt.Close()
+
+	err = stmt.QueryRowContext(ctx, user.FirstName, user.LastName, user.Email, user.Password).Scan(&user.Id)
 	if err != nil {
 		return nil, errors.Wrap(err, "error storing an user")
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		err = rows.Scan(
-			&user.Id,
-			&user.CreatedAt,
-			&user.UpdatedAt,
-		)
-		if err != nil {
-			return nil, errors.Wrap(err, "error scaning an user after stored")
-		}
-
 	}
 
 	return user, nil

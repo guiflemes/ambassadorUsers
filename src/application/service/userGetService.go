@@ -28,7 +28,7 @@ func (s *userGetService) GetAll(ctx context.Context) (domain.UsersList, error) {
 func (s *userGetService) GetById(ctx context.Context, id string) (*domain.User, error) {
 	user, err := s.userRepo.GetBy(ctx, map[string]interface{}{"id": id})
 	if err != nil {
-		return nil, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given %s doest not exists", id))
+		return nil, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given id %s doest not exists", id))
 	}
 	return user, nil
 }
@@ -37,7 +37,7 @@ func (s *userGetService) GetByEmail(ctx context.Context, email string) (bool, *d
 	user, err := s.userRepo.GetBy(ctx, map[string]interface{}{"email": email})
 
 	if err != nil {
-		return false, user, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given %s doest not exists", email))
+		return false, user, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given email %s doest not exists", email))
 	}
 
 	return true, nil, nil

@@ -4,6 +4,9 @@ import (
 	"context"
 	"users/src/application/port/in"
 	"users/src/application/port/out"
+	"users/src/utils"
+
+	"github.com/pkg/errors"
 )
 
 type userService struct {
@@ -74,9 +77,9 @@ func (u *userService) Delete(ctx context.Context, id string) error {
 }
 
 func (u *userService) Store(ctx context.Context, user_req *in.UserReqBody) (*in.UserRespBody, error) {
-
-	if exists, _, err := u.getService.GetByEmail(ctx, user_req.Email); exists {
-		return nil, err
+	
+	if exists, _, _ := u.getService.GetByEmail(ctx, user_req.Email); exists {
+		return nil, errors.Wrap(utils.ErrUserAlreadyExists, user_req.Email)
 	}
 
 	d := in.ToUserDomain(user_req)

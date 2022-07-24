@@ -63,3 +63,25 @@ func (ctl *UserControllerDefault) GetUser(c *fiber.Ctx) error {
 	payload := ctl.encoder.Encode(userRep, nil, true)
 	return transport.Send(c, payload, http.StatusOK)
 }
+
+func (ctl *UserControllerDefault) UpdateUser(c *fiber.Ctx) error {
+	ctx := c.Context()
+	userID := c.Params("id")
+
+	userUpdateReq := &useCase.UserUpdateReq{}
+	userUpdateReq.Id = userID
+
+	if err := c.BodyParser(userUpdateReq); err != nil {
+		return ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
+	}
+
+	userResp, err := ctl.userService.Update(ctx, userUpdateReq)
+
+	if err != nil {
+		return ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
+	}
+
+	payload := ctl.encoder.Encode(userResp, nil, true)
+	return transport.Send(c, payload, http.StatusCreated)
+
+}
