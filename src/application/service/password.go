@@ -13,3 +13,13 @@ func EncryptPassword(password string) string {
 
 	return ePassword
 }
+
+func IsPasswordMatch(password, userpass string) bool {
+	ePassword := EncryptPassword(password)
+
+	if ePassword != userpass {
+		return false
+	}
+
+	return true
+}

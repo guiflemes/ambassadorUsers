@@ -6,6 +6,8 @@ import (
 	"users/src/application/port/in"
 	"users/src/domain"
 
+	"context"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -14,31 +16,32 @@ type MockLoginRepository struct {
 	mock.Mock
 }
 
-func (mock *MockLoginRepository) Authenticate(email string, password string) (bool, *domain.User, error) {
+func (mock *MockLoginRepository) GetBy(context.Context, map[string]interface{}) (*domain.User, error) {
 	args := mock.Called()
-	result := args.Get(1)
-	return args.Bool(0), result.(*domain.User), args.Error(2)
+	result := args.Get(0)
+	return result.(*domain.User), args.Error(1)
 }
 
 func testLoginServiceAuthenticateOk(t *testing.T) {
 	assert := assert.New(t)
 	mockRepo := new(MockLoginRepository)
 	user := domain.User{
-		Id:           "3242425",
-		FirstName:    "first_name",
-		LastName:     "last_name",
-		Email:        "any_emai@gmail.com",
-		Password:     "anypass",
-		IsActive: true,
+		Id:        "3242425",
+		FirstName: "first_name",
+		LastName:  "last_name",
+		Email:     "any_emai@gmail.com",
+		Password:  "anypass",
+		IsActive:  true,
 	}
 
 	expectedResult := in.NewUserRespBody(&user)
 
-	mockRepo.On("Authenticate").Return(true, &user, nil)
+	mockRepo.On("GetBy").Return(&user, nil)
 
-	testLoginService := NewLoginLogic(mockRepo)
+	testLoginService := NewLoginService(mockRepo, func(password, userpass string) bool { return true })
+	ctx := context.Background()
 
-	want, want1, wantErr := testLoginService.Authenticate("any_emai@gmail.com", "anypass")
+	want, want1, wantErr := testLoginService.Authenticate(ctx, "any_emai@gmail.com", "anypass")
 
 	mockRepo.AssertExpectations(t)
 
@@ -52,11 +55,12 @@ func testLoginServiceAuthenticateFailed(t *testing.T) {
 	mockRepo := new(MockLoginRepository)
 	user := domain.User{}
 
-	mockRepo.On("Authenticate").Return(false, &user, errors.New("failed to authenticate"))
+	mockRepo.On("GetBy").Return(&user, errors.New("failed to authenticate"))
 
-	testLoginService := NewLoginLogic(mockRepo)
+	testLoginService := NewLoginService(mockRepo, func(password, userpass string) bool { return false })
+	ctx := context.Background()
 
-	want, want1, wantErr := testLoginService.Authenticate("any_emai@gmail.com", "anypass")
+	want, want1, wantErr := testLoginService.Authenticate(ctx, "any_emai@gmail.com", "anypass")
 
 	mockRepo.AssertExpectations(t)
 

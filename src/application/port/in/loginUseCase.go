@@ -1,5 +1,9 @@
 package in
 
-type LoginService interface {
-	Authenticate(email string, password string) (bool, *UserRespBody, error)
+import (
+	"context"
+)
+
+type LoginUseCase interface {
+	Authenticate(ctx context.Context, email string, password string) (bool, *UserRespBody, error)
 }

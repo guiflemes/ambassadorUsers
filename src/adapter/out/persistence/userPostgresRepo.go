@@ -74,7 +74,7 @@ func (repo *postgresRepository) GetBy(ctx context.Context, filter map[string]int
 
 	user := &domain.User{}
 	query := fmt.Sprintf("SELECT * FROM users WHERE %s=$1", field)
-	err := repo.client.Get(user, query, value)
+	err := repo.client.GetContext(ctx, user, query, value)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting an user")
@@ -123,7 +123,3 @@ func (repo *postgresRepository) Update(ctx context.Context, user *domain.User) (
 
 	return user, nil
 }
-
-// func (repo *postgresRepository) Find(ctx context.Context, )(domain.UsersList, error) {
-
-// }
