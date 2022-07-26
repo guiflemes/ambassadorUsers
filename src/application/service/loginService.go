@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"users/src/application/port/in"
 	"users/src/application/port/out"
-	"users/src/utils"
 
 	"github.com/pkg/errors"
 )
@@ -28,7 +27,7 @@ func (l *LoginService) Authenticate(ctx context.Context, email string, password 
 	user, err := l.userRepo.GetBy(ctx, map[string]interface{}{"email": email})
 
 	if err != nil {
-		return false, nil, errors.Wrap(utils.ErrUserNotFound, fmt.Sprintf("the given email %s doest not exists", email))
+		return false, nil, errors.New(fmt.Sprintf("the given email %s doest not exists", email))
 	}
 
 	if !l.passMath(password, user.Password) {
