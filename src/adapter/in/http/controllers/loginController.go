@@ -31,10 +31,19 @@ func NewLoginController(ctr *container.Container) *LoginController {
 
 func (ctl *LoginController) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
-	email := c.FormValue("email")
-	password := c.FormValue("password")
 
-	auth, userResp, err := ctl.loginSvc.Authenticate(ctx, email, password)
+	type userLogin struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	userReq := &userLogin{}
+
+	if err := c.BodyParser(userReq); err != nil {
+		return ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
+	}
+
+	auth, userResp, err := ctl.loginSvc.Authenticate(ctx, userReq.Email, userReq.Password)
 
 	if err != nil {
 		return ctl.errorHandler.HandleError(c, err, http.StatusUnprocessableEntity)
