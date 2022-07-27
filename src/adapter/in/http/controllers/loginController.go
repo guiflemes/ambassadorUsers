@@ -34,10 +34,6 @@ func (ctl *LoginController) Login(c *fiber.Ctx) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	if email == "" || password == "" {
-		return ctl.errorHandler.HandleError(c, utils.ErrInvalidParameter, http.StatusBadRequest)
-	}
-
 	auth, userResp, err := ctl.loginSvc.Authenticate(ctx, email, password)
 
 	if err != nil {

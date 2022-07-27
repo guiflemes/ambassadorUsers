@@ -6,6 +6,10 @@ import (
 	"users/src/application/port/in"
 	"users/src/application/port/out"
 
+	"users/src/utils"
+
+	"strings"
+
 	"github.com/pkg/errors"
 )
 
@@ -24,6 +28,11 @@ func NewLoginService(userRepo out.GetterBy, passMath passwordMatch) *LoginServic
 }
 
 func (l *LoginService) Authenticate(ctx context.Context, email string, password string) (bool, *in.UserRespBody, error) {
+
+	if strings.TrimSpace(email) == "" || strings.TrimSpace(password) == "" {
+		return false, nil, utils.ErrInvalidParameter
+	}
+
 	user, err := l.userRepo.GetBy(ctx, map[string]interface{}{"email": email})
 
 	if err != nil {
