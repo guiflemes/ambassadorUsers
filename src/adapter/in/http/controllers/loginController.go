@@ -6,6 +6,7 @@ import (
 	"users/src/application/service"
 	"users/src/utils"
 
+	"users/src/utils/auth"
 	"users/src/utils/container"
 
 	"users/src/adapter/in/http/transport"
@@ -17,6 +18,7 @@ type LoginController struct {
 	loginSvc     useCase.LoginUseCase
 	errorHandler HandlerErrorUseCase
 	encoder      transport.Encoder
+	jwtToken     auth.JwtToken
 }
 
 func NewLoginController(ctr *container.Container) *LoginController {
@@ -26,6 +28,7 @@ func NewLoginController(ctr *container.Container) *LoginController {
 		loginSvc:     service.NewLoginService(ctr.Repositories.User, service.IsPasswordMatch),
 		errorHandler: &ErrorHandler{encoder: encode},
 		encoder:      encode,
+		jwtToken:     auth.GenerateTokenPair,
 	}
 }
 
@@ -53,7 +56,12 @@ func (ctl *LoginController) Login(c *fiber.Ctx) error {
 		return ctl.errorHandler.HandleError(c, utils.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
-	payload := ctl.encoder.Encode(userResp, nil, true)
+	tokens, err := ctl.jwtToken(userResp)
+	if err != nil {
+		return ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
+	}
+
+	payload := ctl.encoder.Encode(tokens, nil, true)
 	return transport.Send(c, payload, http.StatusAccepted)
 
 }
