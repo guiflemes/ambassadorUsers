@@ -11,6 +11,7 @@ type JwtToken func(user *in.UserRespBody) (*TokenPair, error)
 
 func newAccessToken(user *in.UserRespBody) *jwt.Token {
 	claims := jwt.MapClaims{
+		"id":        user.Id,
 		"firstName": user.FirstName,
 		"lastName":  user.LastName,
 		"email":     user.Email,

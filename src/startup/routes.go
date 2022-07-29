@@ -14,9 +14,11 @@ func initRouters(app *fiber.App, ctr *container.Container) {
 	userClt := controllers.NewUserController(ctr)
 
 	apiV1.Post("/login", loginClt.Login)
-
-	apiV1.Get("/users/:id", userClt.GetUser)
 	apiV1.Post("/users", userClt.CreateUser)
-	apiV1.Put("/users/:id", userClt.UpdateUser)
+
+	apiV1.Use(isLoggedIn)
+
+	apiV1.Get("/users/:id", loggedInUser, userClt.GetUser)
+	apiV1.Put("/users/:id", loggedInUser, userClt.UpdateUser)
 
 }
