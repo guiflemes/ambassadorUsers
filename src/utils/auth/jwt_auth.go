@@ -2,14 +2,14 @@ package auth
 
 import (
 	"time"
-	"users/src/application/port/in"
+	"users/src/domain"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type JwtToken func(user *in.UserRespBody) (*TokenPair, error)
+type JwtToken func(user *domain.User) (*TokenPair, error)
 
-func newAccessToken(user *in.UserRespBody) *jwt.Token {
+func newAccessToken(user *domain.User) *jwt.Token {
 	claims := jwt.MapClaims{
 		"id":        user.Id,
 		"firstName": user.FirstName,
@@ -23,7 +23,7 @@ func newAccessToken(user *in.UserRespBody) *jwt.Token {
 	return token
 }
 
-func newRefreshToken(user *in.UserRespBody) *jwt.Token {
+func newRefreshToken(user *domain.User) *jwt.Token {
 	claims := jwt.MapClaims{
 		"id":  user.Id,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -39,7 +39,7 @@ type TokenPair struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func GenerateTokenPair(user *in.UserRespBody) (*TokenPair, error) {
+func GenerateTokenPair(user *domain.User) (*TokenPair, error) {
 	accessToken := newAccessToken(user)
 	refreshToken := newRefreshToken(user)
 

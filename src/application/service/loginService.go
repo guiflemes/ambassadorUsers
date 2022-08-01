@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-	"users/src/application/port/in"
 	"users/src/application/port/out"
+	"users/src/domain"
 
 	"users/src/utils"
 
@@ -27,7 +27,7 @@ func NewLoginService(userRepo out.GetterBy, passMath passwordMatch) *LoginServic
 	}
 }
 
-func (l *LoginService) Authenticate(ctx context.Context, email string, password string) (bool, *in.UserRespBody, error) {
+func (l *LoginService) Authenticate(ctx context.Context, email string, password string) (bool, *domain.User, error) {
 
 	if strings.TrimSpace(email) == "" || strings.TrimSpace(password) == "" {
 		return false, nil, utils.ErrInvalidParameter
@@ -43,5 +43,5 @@ func (l *LoginService) Authenticate(ctx context.Context, email string, password 
 		return false, nil, errors.New("Password does not match")
 	}
 
-	return true, in.NewUserRespBody(user), nil
+	return true, user, nil
 }

@@ -65,5 +65,3 @@ func (ctl *LoginController) Login(c *fiber.Ctx) error {
 	return transport.Send(c, payload, http.StatusAccepted)
 
 }
-
-// func (ctl *LoginController) RefreshToken(c *fiber.Ctx)
