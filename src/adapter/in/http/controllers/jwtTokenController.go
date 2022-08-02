@@ -3,19 +3,31 @@ package controllers
 import (
 	"net/http"
 	useCase "users/src/application/port/in"
+	"users/src/application/service"
+	"users/src/utils/container"
 
 	"users/src/adapter/in/http/transport"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type TokenController struct {
+type JwtTokenController struct {
 	svc          useCase.JwtTokenUseCase
 	errorHandler HandlerErrorUseCase
 	encoder      transport.Encoder
 }
 
-func (t *TokenController) RefreshToken(c *fiber.Ctx) error {
+func NewJwtTokenController(ctr *container.Container) *JwtTokenController {
+	encode := &transport.BaseEncode{}
+
+	return &JwtTokenController{
+		svc:          service.NewJwtTokenService(ctr.Repositories.User),
+		errorHandler: &ErrorHandler{encoder: encode},
+		encoder:      encode,
+	}
+}
+
+func (t *JwtTokenController) RefreshToken(c *fiber.Ctx) error {
 	ctx := c.Context()
 	tokenReq := &useCase.JwtTokenRequest{}
 

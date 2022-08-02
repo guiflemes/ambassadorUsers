@@ -12,11 +12,15 @@ import (
 	"github.com/pkg/errors"
 )
 
-type TokenService struct {
+type JwtTokenService struct {
 	userRepo out.GetterBy
 }
 
-func (t *TokenService) RefreshToken(ctx context.Context, tokenReq *in.JwtTokenRequest) (*auth.TokenPair, error) {
+func NewJwtTokenService(userRepo out.GetterBy) *JwtTokenService {
+	return &JwtTokenService{userRepo: userRepo}
+}
+
+func (t *JwtTokenService) RefreshToken(ctx context.Context, tokenReq *in.JwtTokenRequest) (*auth.TokenPair, error) {
 
 	token, err := jwt.Parse(tokenReq.RefreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
