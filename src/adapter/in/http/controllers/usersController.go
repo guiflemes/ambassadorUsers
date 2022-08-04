@@ -34,6 +34,18 @@ func NewUserController(ctr *container.Container) *UserControllerDefault {
 	}
 }
 
+// ShowUser godoc
+// @Summary      Create User
+// @Description  create an user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        user body      in.UserReqBody  true  "Create User"
+// @Success      201  {object}  transport.EncodedSuccess{data=in.UserRespBody,success=bool} "Result"
+// @Failure      422  {object}  transport.EncodedFail{error=string,success=bool} "UnprocessableEntity"
+// @Failure      400  {string}  string    "Bad Request"
+// @Failure      402  {string}  string    "Unauthorized"
+// @Router       /api/v1/users/ [post]
 func (ctl *UserControllerDefault) CreateUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userReq := &useCase.UserReqBody{}
@@ -80,6 +92,21 @@ func (ctl *UserControllerDefault) GetUser(c *fiber.Ctx) error {
 	return transport.Send(c, payload, http.StatusOK)
 }
 
+// ShowUser godoc
+// @Summary      Update User
+// @Description  update an user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security Authorization
+// @in header
+// @Param        id   path      string  true  "User ID"
+// @Param        user body      in.UserUpdateReq  true  "Update User"
+// @Success      200  {object}  transport.EncodedSuccess{data=in.UserRespBody,success=bool} "Result"
+// @Failure      422  {object}  transport.EncodedFail{error=string,success=bool} "UnprocessableEntity"
+// @Failure      400  {string}  string    "Bad Request"
+// @Failure      402  {string}  string    "Unauthorized"
+// @Router       /api/v1/users/{id} [put]
 func (ctl *UserControllerDefault) UpdateUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userID := c.Params("id")
@@ -98,6 +125,6 @@ func (ctl *UserControllerDefault) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	payload := ctl.encoder.Encode(userResp, nil, true)
-	return transport.Send(c, payload, http.StatusCreated)
+	return transport.Send(c, payload, http.StatusOK)
 
 }

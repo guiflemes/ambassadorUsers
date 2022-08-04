@@ -21,7 +21,7 @@ func ToUserDomain(userReq *UserReqBody) *domain.User {
 }
 
 type UserUpdateReq struct {
-	Id        string `json:"id"`
+	Id        string `json:"id"  swaggerignore:"true"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`

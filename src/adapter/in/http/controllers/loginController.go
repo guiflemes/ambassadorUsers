@@ -32,13 +32,24 @@ func NewLoginController(ctr *container.Container) *LoginController {
 	}
 }
 
+type userLogin struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// ShowUser godoc
+// @Summary      Login
+// @Tags         login
+// @Accept       json
+// @Produce      json
+// @Param        user body      userLogin  true  "Login"
+// @Success      200  {object}  transport.EncodedSuccess{data=auth.TokenPair,success=bool} "Result"
+// @Failure      422  {object}  transport.EncodedFail{error=string,success=bool} "UnprocessableEntity"
+// @Failure      400  {string}  string    "Bad Request"
+// @Failure      402  {string}  string    "Unauthorized"
+// @Router       /api/v1/login [post]
 func (ctl *LoginController) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
-
-	type userLogin struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
 
 	userReq := &userLogin{}
 
@@ -62,6 +73,6 @@ func (ctl *LoginController) Login(c *fiber.Ctx) error {
 	}
 
 	payload := ctl.encoder.Encode(tokens, nil, true)
-	return transport.Send(c, payload, http.StatusAccepted)
+	return transport.Send(c, payload, http.StatusOK)
 
 }

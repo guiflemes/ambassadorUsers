@@ -11,6 +11,36 @@ definitions:
       success:
         type: boolean
     type: object
+  auth.TokenPair:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  controllers.userLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  in.JwtTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  in.UserReqBody:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
   in.UserRespBody:
     properties:
       email:
@@ -22,9 +52,149 @@ definitions:
       last_name:
         type: string
     type: object
+  in.UserUpdateReq:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenPair'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+        "422":
+          description: UnprocessableEntity
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
+      summary: Login
+      tags:
+      - login
+  /api/v1/refresh_token:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Token Body
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/in.JwtTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.TokenPair'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Refresh token
+      tags:
+      - login
+  /api/v1/users/:
+    post:
+      consumes:
+      - application/json
+      description: create an user
+      parameters:
+      - description: Create User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/in.UserReqBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/in.UserRespBody'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+        "422":
+          description: UnprocessableEntity
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
+      summary: Create User
+      tags:
+      - users
   /api/v1/users/{id}:
     get:
       consumes:
@@ -70,8 +240,62 @@ paths:
                   type: boolean
               type: object
       security:
-      - Bearer token: []
+      - Authorization: []
       summary: Show an user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: update an user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/in.UserUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/in.UserRespBody'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+        "422":
+          description: UnprocessableEntity
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
+      security:
+      - Authorization: []
+      summary: Update User
       tags:
       - users
 securityDefinitions:
