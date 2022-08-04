@@ -1,21 +1,36 @@
 package transport
 
+import (
+	_ "users/docs"
+)
+
 type Encoder interface {
-	Encode(interface{}, interface{}, interface{}) *Encoded
+	Encode(interface{}, interface{}, bool) interface{}
 }
 
-type Encoded struct {
+type EncodedSuccess struct {
 	Data    interface{} `json:"data"`
+	Success bool        `json:"success"`
+} //@name ResponseSuccess
+
+type EncodedFail struct {
 	Error   interface{} `json:"error"`
-	Success interface{} `json:"success"`
-}
+	Success bool        `json:"success"`
+} //@name ResponseFail
 
 type BaseEncode struct{}
 
-func (e *BaseEncode) Encode(data interface{}, err interface{}, success interface{}) *Encoded {
-	return &Encoded{
+func (e *BaseEncode) Encode(data interface{}, err interface{}, success bool) interface{} {
+
+	if err != nil {
+		return &EncodedFail{
+			Error:   err,
+			Success: success,
+		}
+	}
+
+	return &EncodedSuccess{
 		Data:    data,
-		Error:   err,
 		Success: success,
 	}
 }

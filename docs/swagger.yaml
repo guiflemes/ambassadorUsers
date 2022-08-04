@@ -1,0 +1,82 @@
+definitions:
+  ResponseFail:
+    properties:
+      error: {}
+      success:
+        type: boolean
+    type: object
+  ResponseSuccess:
+    properties:
+      data: {}
+      success:
+        type: boolean
+    type: object
+  in.UserRespBody:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/in.UserRespBody'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
+        "422":
+          description: UnprocessableEntity
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
+      security:
+      - Bearer token: []
+      summary: Show an user
+      tags:
+      - users
+securityDefinitions:
+  Bearer token:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

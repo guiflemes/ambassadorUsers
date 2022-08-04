@@ -8,6 +8,8 @@ import (
 
 	"users/src/adapter/in/http/transport"
 
+	_ "users/docs"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -50,6 +52,20 @@ func (ctl *UserControllerDefault) CreateUser(c *fiber.Ctx) error {
 	return transport.Send(c, payload, http.StatusCreated)
 }
 
+// ShowUser godoc
+// @Summary      Show an user
+// @Description  get user by ID
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "User ID"
+// @Security Authorization
+// @in header
+// @Success      200  {object}  transport.EncodedSuccess{data=in.UserRespBody,success=bool} "Result"
+// @Failure      422  {object}  transport.EncodedFail{error=string,success=bool} "UnprocessableEntity"
+// @Failure      400  {string}  string    "Bad Request"
+// @Failure      402  {string}  string    "Unauthorized"
+// @Router       /api/v1/users/{id} [get]
 func (ctl *UserControllerDefault) GetUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userID := c.Params("id")

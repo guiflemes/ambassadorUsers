@@ -1,6 +1,7 @@
 package in
 
 import (
+	_ "users/docs"
 	"users/src/domain"
 )
 
