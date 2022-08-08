@@ -3,6 +3,7 @@ package startup
 import (
 	"github.com/gofiber/fiber/v2"
 
+	"users/src/domain"
 	"users/src/utils"
 
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -24,6 +25,17 @@ func loggedInUser(c *fiber.Ctx) error {
 
 	return c.Next()
 
+}
+
+func isSuperAdmin(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+
+	if claims["role"] != domain.SuperAdmin {
+		return utils.ErrUnauthorized
+	}
+
+	return c.Next()
 }
 
 func setMiddleware(app *fiber.App) {

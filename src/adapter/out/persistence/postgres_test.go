@@ -38,8 +38,8 @@ func (s *postgresTestSuite) SetupSuite() {
 }
 
 func (s *postgresTestSuite) seedUsers(users domain.UsersList) {
-	query := `INSERT INTO users (id, first_name, last_name, email, password)
-	VALUES (:id, :first_name, :last_name, :email, :password)`
+	query := `INSERT INTO users (id, first_name, last_name, email, password, role)
+	VALUES (:id, :first_name, :last_name, :email, :password, :role)`
 	ctx := context.Background()
 	result, err := s.repo.client.NamedExecContext(ctx, query, users)
 
@@ -61,6 +61,7 @@ func (s *postgresTestSuite) TestUpdateDelete() {
 		Email:     "email@email.com",
 		Password:  "",
 		IsActive:  true,
+		Role:      1,
 	}
 
 	user2 := &domain.User{
@@ -70,6 +71,7 @@ func (s *postgresTestSuite) TestUpdateDelete() {
 		Email:     "email2@email.com",
 		Password:  "",
 		IsActive:  true,
+		Role:      1,
 	}
 
 	s.seedUsers(domain.UsersList{user1})
@@ -116,6 +118,7 @@ func (s *postgresTestSuite) TestRepoDelete() {
 		Email:     "email@email.com",
 		Password:  "pass123",
 		IsActive:  true,
+		Role:      1,
 	}
 
 	s.seedUsers(domain.UsersList{user1})
@@ -163,6 +166,7 @@ func (s *postgresTestSuite) TestRepoGetBy() {
 		Email:     "email@email.com",
 		Password:  "pass123",
 		IsActive:  true,
+		Role:      1,
 	}
 
 	user2 := &domain.User{
@@ -172,6 +176,7 @@ func (s *postgresTestSuite) TestRepoGetBy() {
 		Email:     "emai2l@email.com",
 		Password:  "pass123",
 		IsActive:  true,
+		Role:      1,
 	}
 
 	s.seedUsers(domain.UsersList{user1, user2})
@@ -254,6 +259,7 @@ func (s *postgresTestSuite) TestRepoStore() {
 				Email:     "email@email.com",
 				Password:  "pass123",
 				IsActive:  true,
+				Role:      1,
 			},
 			expectedErrorMsg: "",
 			idChecker:        func(ids ...string) { s.Equal(ids[0], ids[1]) },
@@ -266,6 +272,7 @@ func (s *postgresTestSuite) TestRepoStore() {
 				Email:     "email@email.com",
 				Password:  "pass123",
 				IsActive:  true,
+				Role:      1,
 			},
 			expectedErrorMsg: `duplicate key value violates unique constraint "users_email_key"`,
 			idChecker:        nil,
@@ -306,6 +313,7 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 			Email:     "email@email.com",
 			Password:  "pass123",
 			IsActive:  true,
+			Role:      1,
 		},
 		&domain.User{
 			Id:        uid2.String(),
@@ -314,6 +322,7 @@ func (s *postgresTestSuite) TestRepoGetAll() {
 			Email:     "emai2l@email.com",
 			Password:  "pass123",
 			IsActive:  true,
+			Role:      1,
 		},
 	}
 

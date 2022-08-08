@@ -17,6 +17,7 @@ func ToUserDomain(userReq *UserReqBody) *domain.User {
 		LastName:  userReq.LastName,
 		Email:     userReq.Email,
 		Password:  userReq.Password,
+		Role:      1,
 	}
 }
 

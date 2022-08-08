@@ -9,6 +9,13 @@ var (
 	Validator = validators.NewValidator().ValidateStruct
 )
 
+type RoleT int
+
+const (
+	SuperAdmin RoleT = iota
+	Admin
+)
+
 type User struct {
 	Id        string    `db:"id"`
 	FirstName string    `validate:"required,gt=2" db:"first_name"`
@@ -18,6 +25,7 @@ type User struct {
 	IsActive  bool      `db:"is_active"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
+	Role      RoleT     `db:"role"`
 }
 
 type UsersList []*User

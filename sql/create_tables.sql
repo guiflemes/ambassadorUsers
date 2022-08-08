@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_active    boolean DEFAULT TRUE,               
     created_at   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    role         smallint NOT NULL DEFAULT 1,
 
     PRIMARY KEY (id)
 );

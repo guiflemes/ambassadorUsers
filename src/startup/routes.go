@@ -25,6 +25,7 @@ func initRouters(app *fiber.App, ctr *container.Container) {
 
 	apiV1.Get("/users/:id", loggedInUser, userCtl.GetUser)
 	apiV1.Put("/users/:id", loggedInUser, userCtl.UpdateUser)
+	apiV1.Delete("/users/:id", isSuperAdmin, userCtl.UpdateUser)
 
 }
 

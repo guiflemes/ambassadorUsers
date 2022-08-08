@@ -15,6 +15,7 @@ func newAccessToken(user *domain.User) *jwt.Token {
 		"firstName": user.FirstName,
 		"lastName":  user.LastName,
 		"email":     user.Email,
+		"role":      user.Role,
 		"exp":       time.Now().Add(time.Minute * 15).Unix(),
 	}
 

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"testing"
-	"users/src/application/port/in"
 	"users/src/domain"
 	"users/src/utils"
 
@@ -33,9 +32,8 @@ func testLoginServiceAuthenticateOk(t *testing.T) {
 		Email:     "any_emai@gmail.com",
 		Password:  "anypass",
 		IsActive:  true,
+		Role:      1,
 	}
-
-	expectedResult := in.NewUserRespBody(&user)
 
 	mockRepo.On("GetBy").Return(&user, nil)
 
@@ -47,7 +45,7 @@ func testLoginServiceAuthenticateOk(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 
 	assert.True(want)
-	assert.Equal(expectedResult, want1)
+	assert.Equal(&user, want1)
 	assert.Nil(wantErr)
 }
 
