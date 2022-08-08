@@ -137,7 +137,7 @@ func (ctl *UserControllerDefault) UpdateUser(c *fiber.Ctx) error {
 // @Security Authorization
 // @in header
 // @Param        id   path      string  true  "User ID"
-// @Success      200  {object}  transport.EncodedSuccess{data=string,success=bool} "Result"
+// @Success      200  {object}  transport.EncodedSuccess{data=in.UserDeleteResp,success=bool} "Result"
 // @Failure      400  {object}  transport.EncodedFail{error=string,success=bool}   "Bad Request"
 // @Router       /api/v1/users/{id} [delete]
 func (ctl *UserControllerDefault) DeleteUser(c *fiber.Ctx) error {
@@ -148,5 +148,7 @@ func (ctl *UserControllerDefault) DeleteUser(c *fiber.Ctx) error {
 		return ctl.errorHandler.HandleError(c, err, http.StatusBadRequest)
 	}
 
-	return transport.Send(c, userId, http.StatusOK)
+	resp := &useCase.UserDeleteResp{Id: userId}
+	payload := ctl.encoder.Encode(resp, nil, true)
+	return transport.Send(c, payload, http.StatusOK)
 }

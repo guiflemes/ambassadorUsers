@@ -20,3 +20,7 @@ func NewUserRespBody(user *domain.User) *UserRespBody {
 		Email:     user.Email,
 	}
 }
+
+type UserDeleteResp struct {
+	Id string `json:"id"`
+}

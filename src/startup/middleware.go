@@ -31,7 +31,9 @@ func isSuperAdmin(c *fiber.Ctx) error {
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 
-	if claims["role"] != domain.SuperAdmin {
+	role, _ := claims["role"].(int64)
+
+	if domain.RoleT(role) != domain.SuperAdmin {
 		return utils.ErrUnauthorized
 	}
 

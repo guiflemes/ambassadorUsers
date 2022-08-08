@@ -30,6 +30,11 @@ definitions:
       refresh_token:
         type: string
     type: object
+  in.UserDeleteResp:
+    properties:
+      id:
+        type: string
+    type: object
   in.UserReqBody:
     properties:
       email:
@@ -115,6 +120,7 @@ paths:
     post:
       consumes:
       - application/json
+      description: get auth token by refresh_token
       parameters:
       - description: Token Body
         in: body
@@ -176,7 +182,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
         "402":
           description: Unauthorized
           schema:
@@ -196,6 +209,46 @@ paths:
       tags:
       - users
   /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete an user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/in.UserDeleteResp'
+                success:
+                  type: boolean
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
+      security:
+      - Authorization: []
+      summary: Delete User
+      tags:
+      - users
     get:
       consumes:
       - application/json
@@ -223,14 +276,6 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
-        "402":
-          description: Unauthorized
-          schema:
-            type: string
-        "422":
-          description: UnprocessableEntity
-          schema:
             allOf:
             - $ref: '#/definitions/ResponseFail'
             - properties:
@@ -239,6 +284,10 @@ paths:
                 success:
                   type: boolean
               type: object
+        "402":
+          description: Unauthorized
+          schema:
+            type: string
       security:
       - Authorization: []
       summary: Show an user
@@ -277,7 +326,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/ResponseFail'
+            - properties:
+                error:
+                  type: string
+                success:
+                  type: boolean
+              type: object
         "402":
           description: Unauthorized
           schema:

@@ -99,6 +99,7 @@ const docTemplate = `{
         },
         "/api/v1/refresh_token": {
             "post": {
+                "description": "get auth token by refresh_token",
                 "consumes": [
                     "application/json"
                 ],
@@ -206,7 +207,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseFail"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        },
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "402": {
@@ -291,18 +307,6 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "402": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "422": {
-                        "description": "UnprocessableEntity",
-                        "schema": {
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/ResponseFail"
@@ -319,6 +323,12 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "402": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -383,7 +393,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseFail"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        },
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "402": {
@@ -394,6 +419,77 @@ const docTemplate = `{
                     },
                     "422": {
                         "description": "UnprocessableEntity",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseFail"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        },
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "delete an user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Result",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ResponseSuccess"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/in.UserDeleteResp"
+                                        },
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "allOf": [
                                 {
@@ -462,6 +558,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "in.UserDeleteResp": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 }
             }
