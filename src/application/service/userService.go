@@ -4,6 +4,7 @@ import (
 	"context"
 	"users/src/application/port/in"
 	"users/src/application/port/out"
+	"users/src/domain"
 	"users/src/utils"
 
 	"github.com/pkg/errors"
@@ -77,13 +78,14 @@ func (u *userService) Delete(ctx context.Context, id string) error {
 }
 
 func (u *userService) Store(ctx context.Context, user_req *in.UserReqBody) (*in.UserRespBody, error) {
-	
+
 	if exists, _, _ := u.getService.GetByEmail(ctx, user_req.Email); exists {
 		return nil, errors.Wrap(utils.ErrUserAlreadyExists, user_req.Email)
 	}
 
 	d := in.ToUserDomain(user_req)
 	d.IsActive = true
+	d.Role = domain.Admin
 
 	userDomain, err := u.storeService.Store(ctx, d)
 
